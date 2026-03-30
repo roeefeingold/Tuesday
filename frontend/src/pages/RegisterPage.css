@@ -1,0 +1,143 @@
+.register-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f6f7fb 0%, #e6f4ff 100%);
+  padding: 20px;
+}
+
+.register-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 420px;
+  animation: registerSlideUp 0.4s ease;
+}
+
+@keyframes registerSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.register-header {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.register-logo {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--color-primary);
+  letter-spacing: -1px;
+  margin-bottom: 8px;
+}
+
+.register-tagline {
+  color: var(--color-text-light);
+  font-size: 15px;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.register-error {
+  background: color-mix(in srgb, var(--color-critical) 10%, transparent);
+  color: var(--color-critical);
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.register-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.register-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.register-input {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 11px 14px;
+  font-size: 14px;
+  color: var(--color-text);
+  background: var(--color-surface);
+  transition: all 0.15s ease;
+}
+
+.register-input:hover {
+  border-color: var(--color-text-light);
+}
+
+.register-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(0, 115, 234, 0.1);
+}
+
+.register-input::placeholder {
+  color: var(--color-text-light);
+  opacity: 0.7;
+}
+
+.register-footer {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 14px;
+  color: var(--color-text-light);
+}
+
+.register-footer a {
+  font-weight: 500;
+}
+
+.register-success {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 0;
+}
+
+.register-success-icon {
+  width: 56px;
+  height: 56px;
+  background: var(--color-solved);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.register-success h2 {
+  color: var(--color-text);
+}
+
+.register-success p {
+  color: var(--color-text-light);
+  font-size: 15px;
+  max-width: 300px;
+}
