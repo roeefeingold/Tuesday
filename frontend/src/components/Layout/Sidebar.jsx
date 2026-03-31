@@ -1,13 +1,11 @@
 import { Drawer, List, ListItemButton, ListItemIcon, ListItemText, Toolbar } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 const NAV_ITEMS = [
   { label: 'לוח', icon: <DashboardIcon />, path: '/board' },
-  { label: 'התקלות שלי', icon: <AssignmentIndIcon />, path: '/board?my=1' },
 ];
 
 const ADMIN_ITEM = { label: 'ניהול', icon: <AdminPanelSettingsIcon />, path: '/admin' };
@@ -19,15 +17,12 @@ export default function Sidebar({ width }) {
 
   const items = isAdmin ? [...NAV_ITEMS, ADMIN_ITEM] : NAV_ITEMS;
 
-  const isActive = (path) => {
-    if (path === '/board?my=1') return location.pathname === '/board' && location.search === '?my=1';
-    if (path === '/board') return location.pathname === '/board' && location.search !== '?my=1';
-    return location.pathname === path;
-  };
+  const isActive = (path) => location.pathname === path;
 
   return (
     <Drawer
       variant="permanent"
+      anchor="right"
       sx={{
         width,
         flexShrink: 0,
@@ -37,8 +32,6 @@ export default function Sidebar({ width }) {
           borderLeft: '1px solid #e0e0e0',
           borderRight: 'none',
           backgroundColor: '#fff',
-          right: 0,
-          left: 'auto',
         },
       }}
     >

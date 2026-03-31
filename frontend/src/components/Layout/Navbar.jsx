@@ -28,7 +28,8 @@ export default function Navbar() {
         zIndex: (theme) => theme.zIndex.drawer + 1,
       }}
     >
-      <Toolbar sx={{ justifyContent: 'space-between' }}>
+      <Toolbar sx={{ flexDirection: 'row-reverse', justifyContent: 'space-between' }}>
+        {/* Right side (RTL: logo) */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Typography variant="h5" sx={{ fontWeight: 700, color: '#0073ea' }}>
             Tuesday
@@ -51,10 +52,13 @@ export default function Navbar() {
           )}
         </Box>
 
+        {/* Left side (RTL: user info) */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            {user?.full_name}
-          </Typography>
+          <Tooltip title="התנתקות">
+            <IconButton onClick={logout} size="small" sx={{ color: 'text.secondary' }}>
+              <LogoutIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
           <Avatar
             sx={{
               width: 34,
@@ -65,11 +69,9 @@ export default function Navbar() {
           >
             {getInitials(user?.full_name)}
           </Avatar>
-          <Tooltip title="התנתקות">
-            <IconButton onClick={logout} size="small" sx={{ color: 'text.secondary' }}>
-              <LogoutIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            {user?.full_name}
+          </Typography>
         </Box>
       </Toolbar>
     </AppBar>

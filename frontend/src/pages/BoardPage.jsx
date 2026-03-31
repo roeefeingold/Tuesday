@@ -4,7 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import BoardColumn from '../components/Board/BoardColumn';
 import NewTicketModal from '../components/Board/NewTicketModal';
 import { STATUSES, PRIORITIES } from '../utils/constants';
-import { get } from '../api/client';
+import { get, patch } from '../api/client';
+import { DragDropContext } from '@hello-pangea/dnd';
 import {
   Box,
   Typography,
@@ -71,8 +72,40 @@ export default function BoardPage() {
     }
   };
 
+  const handleDragEnd = async (result) => {
+    const { draggableId, destination, source } = result;
+    if (!destination) return;
+    if (destination.droppableId === source.droppableId) return;
+
+    const ticketId = parseInt(draggableId, 10);
+    const newStatus = destination.droppableId;
+    const ticket = tickets.find((t) => t.id === ticketId);
+    if (!ticket) return;
+
+    // Optimistic update
+    setTickets((prev) =>
+      prev.map((t) => (t.id === ticketId ? { ...t, status: newStatus } : t))
+    );
+
+    try {
+      // Auto-assign if moving to in_process and no assignee
+      if (newStatus === 'in_process' && !ticket.assignee_id) {
+        await patch(`/tickets/${ticketId}/assign`, { assignee_id: user.id });
+      }
+      await patch(`/tickets/${ticketId}/status`, { status: newStatus });
+      await fetchTickets();
+    } catch (err) {
+      // Revert on error
+      setTickets((prev) =>
+        prev.map((t) => (t.id === ticketId ? { ...t, status: source.droppableId } : t))
+      );
+      alert(err.response?.data?.detail || 'נכשל בעדכון הסטטוס');
+    }
+  };
+
   return (
     <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
+      {/* Toolbar - RTL: title on right, controls on left */}
       <Box
         sx={{
           display: 'flex',
@@ -81,6 +114,7 @@ export default function BoardPage() {
           mb: 3,
           flexWrap: 'wrap',
           gap: 2,
+          flexDirection: 'row-reverse',
         }}
       >
         <Typography variant="h5" sx={{ fontWeight: 700 }}>
@@ -88,20 +122,29 @@ export default function BoardPage() {
         </Typography>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
-          <TextField
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setShowNewTicket(true)}
+            sx={{ px: 3 }}
+          >
+            תקלה חדשה
+          </Button>
+
+          <ToggleButton
+            value="my"
+            selected={myTickets}
+            onChange={handleToggleMyTickets}
             size="small"
-            placeholder="חיפוש תקלות..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" sx={{ color: 'text.secondary' }} />
-                </InputAdornment>
-              ),
+            sx={{
+              textTransform: 'none',
+              px: 2,
+              borderColor: myTickets ? 'primary.main' : undefined,
             }}
-            sx={{ minWidth: 200 }}
-          />
+          >
+            <PersonIcon fontSize="small" sx={{ ml: 0.5 }} />
+            התקלות שלי
+          </ToggleButton>
 
           <TextField
             select
@@ -121,29 +164,20 @@ export default function BoardPage() {
             ))}
           </TextField>
 
-          <ToggleButton
-            value="my"
-            selected={myTickets}
-            onChange={handleToggleMyTickets}
+          <TextField
             size="small"
-            sx={{
-              textTransform: 'none',
-              px: 2,
-              borderColor: myTickets ? 'primary.main' : undefined,
+            placeholder="חיפוש תקלות..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+                </InputAdornment>
+              ),
             }}
-          >
-            <PersonIcon fontSize="small" sx={{ ml: 0.5 }} />
-            התקלות שלי
-          </ToggleButton>
-
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setShowNewTicket(true)}
-            sx={{ px: 3 }}
-          >
-            תקלה חדשה
-          </Button>
+            sx={{ minWidth: 200 }}
+          />
         </Box>
       </Box>
 
@@ -152,23 +186,26 @@ export default function BoardPage() {
           <CircularProgress />
         </Box>
       ) : (
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' },
-            gap: 2.5,
-            alignItems: 'start',
-          }}
-        >
-          {grouped.map((col) => (
-            <BoardColumn
-              key={col.value}
-              status={col}
-              tickets={col.tickets}
-              onTicketClick={handleTicketClick}
-            />
-          ))}
-        </Box>
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' },
+              gap: 2.5,
+              alignItems: 'start',
+              direction: 'rtl',
+            }}
+          >
+            {grouped.map((col) => (
+              <BoardColumn
+                key={col.value}
+                status={col}
+                tickets={col.tickets}
+                onTicketClick={handleTicketClick}
+              />
+            ))}
+          </Box>
+        </DragDropContext>
       )}
 
       <NewTicketModal

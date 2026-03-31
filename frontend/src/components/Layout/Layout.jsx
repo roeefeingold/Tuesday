@@ -6,13 +6,13 @@ const SIDEBAR_WIDTH = 220;
 
 export default function Layout({ children }) {
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+    <Box sx={{ minHeight: '100vh' }}>
       <Navbar />
       <Sidebar width={SIDEBAR_WIDTH} />
       <Box
         component="main"
         sx={{
-          flexGrow: 1,
+          marginRight: `${SIDEBAR_WIDTH}px`,
           mt: '64px',
           p: { xs: 2, md: 3 },
           backgroundColor: 'background.default',
