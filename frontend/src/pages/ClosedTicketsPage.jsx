@@ -24,7 +24,7 @@ export default function ClosedTicketsPage() {
 
   const fetchTickets = useCallback(async () => {
     try {
-      const params = { status: 'solved' };
+      const params = { status: 'closed' };
       if (search.trim()) params.search = search.trim();
       if (filterPriority) params.priority = filterPriority;
       if (filterAssignee) params.assignee_id = filterAssignee;
@@ -136,7 +136,7 @@ export default function ClosedTicketsPage() {
           </Typography>
         </Paper>
       ) : (
-        <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
+        <TableContainer component={Paper} sx={{ borderRadius: 2 }} dir="rtl">
           <Table>
             <TableHead>
               <TableRow sx={{ backgroundColor: '#f9fafb' }}>

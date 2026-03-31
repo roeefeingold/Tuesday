@@ -20,7 +20,7 @@ export default function Navbar() {
   useEffect(() => {
     if (user) {
       get('/tickets/stats')
-        .then((res) => setSolvedCount(res.data?.by_status?.solved || 0))
+        .then((res) => setSolvedCount(res.data?.by_status?.closed || 0))
         .catch(() => {});
     }
   }, [user]);

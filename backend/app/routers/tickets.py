@@ -86,6 +86,9 @@ async def list_tickets(
 
     if status_filter:
         query = query.where(Ticket.status == status_filter)
+    else:
+        # By default exclude closed tickets (board view)
+        query = query.where(Ticket.status != "closed")
     if assignee_id:
         query = query.where(Ticket.assignee_id == assignee_id)
     if priority:
@@ -153,8 +156,8 @@ async def update_ticket(
     return _ticket_to_out(ticket)
 
 
-@router.delete("/{ticket_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_ticket(
+@router.post("/{ticket_id}/close", response_model=TicketOut)
+async def close_ticket(
     ticket_id: int,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -167,7 +170,7 @@ async def delete_ticket(
     if ticket.status != "solved":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Ticket must be in 'solved' status to be deleted",
+            detail="Ticket must be in 'solved' status to be closed",
         )
 
     is_reporter = ticket.reporter_id == current_user.id
@@ -175,11 +178,13 @@ async def delete_ticket(
     if not is_reporter and not is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only the ticket reporter or an admin can delete this ticket",
+            detail="Only the ticket reporter or an admin can close this ticket",
         )
 
-    await db.delete(ticket)
+    ticket.status = "closed"
     await db.flush()
+    await db.refresh(ticket)
+    return _ticket_to_out(ticket)
 
 
 @router.patch("/{ticket_id}/status", response_model=TicketOut)
@@ -202,6 +207,7 @@ async def update_ticket_status(
         "open": ["in_process"],
         "in_process": ["solved", "open"],
         "solved": ["open"],
+        "closed": ["open"],
     }
 
     if new_status not in allowed_transitions.get(current_status, []):

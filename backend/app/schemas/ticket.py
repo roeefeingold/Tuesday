@@ -25,7 +25,7 @@ class TicketStatusUpdate(BaseModel):
     @field_validator("status")
     @classmethod
     def validate_status(cls, v: str) -> str:
-        allowed = {"open", "in_process", "solved"}
+        allowed = {"open", "in_process", "solved", "closed"}
         if v not in allowed:
             raise ValueError(f"Status must be one of: {', '.join(allowed)}")
         return v

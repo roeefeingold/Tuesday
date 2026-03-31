@@ -18,12 +18,14 @@ export default function TicketCard({ ticket, onClick }) {
     <Card
       onClick={onClick}
       elevation={0}
+      dir="rtl"
       sx={{
         cursor: 'pointer',
         border: '1px solid #e6e9ef',
         borderRadius: 2,
         transition: 'all 0.2s ease',
         backgroundColor: '#fff',
+        textAlign: 'right',
         '&:hover': {
           boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
           borderColor: '#c4c4c4',
@@ -31,7 +33,7 @@ export default function TicketCard({ ticket, onClick }) {
         },
       }}
     >
-      <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+      <CardContent dir="rtl" sx={{ p: 2, '&:last-child': { pb: 2 }, textAlign: 'right' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
           <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500, fontSize: '0.75rem' }}>
             #{ticket.id}
@@ -60,6 +62,7 @@ export default function TicketCard({ ticket, onClick }) {
             overflow: 'hidden',
             lineHeight: 1.5,
             fontSize: '0.875rem',
+            textAlign: 'right',
           }}
         >
           {ticket.title}

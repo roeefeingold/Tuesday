@@ -10,7 +10,7 @@ import {
   getAgeLabel,
 } from '../utils/helpers';
 import { PRIORITIES } from '../utils/constants';
-import { get, patch, post, del } from '../api/client';
+import { get, patch, post } from '../api/client';
 import {
   Box,
   Paper,
@@ -137,7 +137,7 @@ export default function TicketDetailPage() {
     if (!window.confirm('האם אתה בטוח שברצונך לסגור תקלה זו?')) return;
     setCloseError('');
     try {
-      await del(`/tickets/${id}`);
+      await post(`/tickets/${id}/close`, {});
       navigate('/board');
     } catch (err) {
       setCloseError(err.response?.data?.detail || 'נכשל בסגירת התקלה');
