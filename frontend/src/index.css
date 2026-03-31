@@ -5,10 +5,15 @@
   --color-bg: #f6f7fb;
 }
 
-/* This CSS file is NOT processed by stylis-plugin-rtl (only Emotion CSS is).
-   So direction: rtl here won't be flipped and will force all elements RTL. */
-*, *::before, *::after {
-  direction: rtl;
+/* Force RTL on everything. MUI's stylis-plugin-rtl flips Emotion CSS
+   direction:rtl to ltr, so we must use !important in plain CSS to win. */
+html, body, #root,
+div, main, section, article, aside, nav, header, footer,
+p, h1, h2, h3, h4, h5, h6, span, a, li, ul, ol,
+form, input, textarea, select, button, label,
+table, thead, tbody, tr, th, td {
+  direction: rtl !important;
+  text-align: right;
 }
 
 body {
@@ -17,7 +22,6 @@ body {
   padding: 0;
   background: var(--color-bg);
   scroll-behavior: smooth;
-  text-align: right;
 }
 
 * {
