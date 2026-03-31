@@ -190,7 +190,7 @@ export default function AdminPage() {
   }
 
   return (
-    <Box sx={{ maxWidth: 1100, mx: 'auto' }}>
+    <Box dir="rtl" sx={{ maxWidth: 1100, mx: 'auto' }}>
       <Typography variant="h5" sx={{ fontWeight: 700, mb: 3 }}>
         ניהול מערכת
       </Typography>

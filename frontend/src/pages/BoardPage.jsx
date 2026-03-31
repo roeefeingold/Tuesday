@@ -95,8 +95,8 @@ export default function BoardPage() {
   };
 
   return (
-    <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, gap: 1.5, flexWrap: 'wrap' }}>
+    <Box dir="rtl" sx={{ maxWidth: 1400, mx: 'auto' }}>
+      <Box dir="rtl" sx={{ display: 'flex', alignItems: 'center', mb: 3, gap: 1.5, flexWrap: 'wrap' }}>
         <Button
           variant="contained"
           startIcon={<AddIcon />}

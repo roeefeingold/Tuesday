@@ -28,7 +28,7 @@ export default function Navbar() {
         zIndex: (theme) => theme.zIndex.drawer + 1,
       }}
     >
-      <Toolbar>
+      <Toolbar dir="rtl">
         <Typography variant="h5" sx={{ fontWeight: 700, color: '#0073ea' }}>
           Tuesday
         </Typography>

@@ -176,7 +176,7 @@ export default function TicketDetailPage() {
   const showAssignee = ticket.status !== 'open';
 
   return (
-    <Box sx={{ maxWidth: 1100, mx: 'auto' }}>
+    <Box dir="rtl" sx={{ maxWidth: 1100, mx: 'auto' }}>
       <Button
         startIcon={<ArrowForwardIcon />}
         onClick={() => navigate('/board')}
