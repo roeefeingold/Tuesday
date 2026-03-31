@@ -195,6 +195,38 @@ async def close_ticket(
     return _ticket_to_out(ticket)
 
 
+@router.delete("/{ticket_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_ticket(
+    ticket_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    result = await db.execute(select(Ticket).where(Ticket.id == ticket_id))
+    ticket = result.scalar_one_or_none()
+    if not ticket:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ticket not found")
+
+    if ticket.status != "closed":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Only closed tickets can be permanently deleted",
+        )
+
+    is_reporter = ticket.reporter_id == current_user.id
+    is_admin = current_user.role == "admin"
+    if not is_reporter and not is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the ticket reporter or an admin can delete this ticket",
+        )
+
+    # Delete comments first, then ticket
+    for comment in ticket.comments:
+        await db.delete(comment)
+    await db.delete(ticket)
+    await db.flush()
+
+
 @router.patch("/{ticket_id}/status", response_model=TicketOut)
 async def update_ticket_status(
     ticket_id: int,

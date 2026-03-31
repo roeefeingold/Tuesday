@@ -1,16 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { get, patch } from '../api/client';
+import { get, patch, del } from '../api/client';
 import { getPriorityInfo, timeAgo, getInitials } from '../utils/helpers';
 import { PRIORITIES } from '../utils/constants';
 import {
   Box, Typography, Paper, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Chip, Avatar, Button, TextField, MenuItem,
-  CircularProgress, Tooltip, InputAdornment,
+  CircularProgress, Tooltip, InputAdornment, IconButton,
 } from '@mui/material';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import SearchIcon from '@mui/icons-material/Search';
 import RestoreIcon from '@mui/icons-material/Restore';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
 export default function ClosedTicketsPage() {
   const [tickets, setTickets] = useState([]);
@@ -51,6 +52,16 @@ export default function ClosedTicketsPage() {
       alert(err.response?.data?.detail || 'נכשל בפתיחה מחדש');
     } finally {
       setReopening(null);
+    }
+  };
+
+  const handleDelete = async (ticketId) => {
+    if (!window.confirm('האם אתה בטוח? פעולה זו תמחק את התקלה לצמיתות.')) return;
+    try {
+      await del(`/tickets/${ticketId}`);
+      await fetchTickets();
+    } catch (err) {
+      alert(err.response?.data?.detail || 'נכשל במחיקה');
     }
   };
 
@@ -202,20 +213,34 @@ export default function ClosedTicketsPage() {
                       </Typography>
                     </TableCell>
                     <TableCell>
-                      <Tooltip title="החזר ללוח">
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          startIcon={<RestoreIcon />}
-                          disabled={reopening === t.id}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleReopen(t.id);
-                          }}
-                        >
-                          פתח מחדש
-                        </Button>
-                      </Tooltip>
+                      <Box sx={{ display: 'flex', gap: 1 }}>
+                        <Tooltip title="החזר ללוח">
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            startIcon={<RestoreIcon />}
+                            disabled={reopening === t.id}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleReopen(t.id);
+                            }}
+                          >
+                            פתח מחדש
+                          </Button>
+                        </Tooltip>
+                        <Tooltip title="מחק לצמיתות">
+                          <IconButton
+                            size="small"
+                            color="error"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(t.id);
+                            }}
+                          >
+                            <DeleteForeverIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
                     </TableCell>
                   </TableRow>
                 );
