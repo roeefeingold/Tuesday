@@ -66,7 +66,7 @@ export default function ClosedTicketsPage() {
   };
 
   return (
-    <Box dir="rtl">
+    <Box>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, gap: 1.5 }}>
         <Button
           startIcon={<ArrowForwardIcon />}
@@ -147,7 +147,7 @@ export default function ClosedTicketsPage() {
           </Typography>
         </Paper>
       ) : (
-        <TableContainer component={Paper} sx={{ borderRadius: 2 }} dir="rtl">
+        <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
           <Table>
             <TableHead>
               <TableRow sx={{ backgroundColor: '#f9fafb' }}>

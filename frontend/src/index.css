@@ -5,12 +5,7 @@
   --color-bg: #f6f7fb;
 }
 
-html {
-  direction: rtl;
-}
-
 body {
-  direction: rtl;
   font-family: 'Rubik', 'Inter', system-ui, sans-serif;
   margin: 0;
   padding: 0;

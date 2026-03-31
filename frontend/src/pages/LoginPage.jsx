@@ -61,7 +61,7 @@ export default function LoginPage() {
           borderRadius: 3,
           textAlign: 'center',
         }}
-        dir="rtl"
+       
       >
         <Typography
           variant="h3"

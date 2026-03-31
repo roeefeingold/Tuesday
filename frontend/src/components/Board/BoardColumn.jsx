@@ -6,7 +6,7 @@ export default function BoardColumn({ status, tickets, onTicketClick }) {
   return (
     <Paper
       elevation={0}
-      dir="rtl"
+     
       sx={{
         display: 'flex',
         flexDirection: 'column',

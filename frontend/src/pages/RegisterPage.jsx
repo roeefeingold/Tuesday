@@ -72,7 +72,7 @@ export default function RegisterPage() {
         <Paper
           elevation={8}
           sx={{ p: 5, maxWidth: 420, width: '100%', borderRadius: 3, textAlign: 'center' }}
-          dir="rtl"
+         
         >
           <CheckCircleOutlineIcon sx={{ fontSize: 60, color: '#00c875', mb: 2 }} />
           <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
@@ -105,7 +105,7 @@ export default function RegisterPage() {
       <Paper
         elevation={8}
         sx={{ p: 5, maxWidth: 420, width: '100%', borderRadius: 3, textAlign: 'center' }}
-        dir="rtl"
+       
       >
         <Typography variant="h3" sx={{ fontWeight: 800, color: '#0073ea', mb: 1 }}>
           Tuesday

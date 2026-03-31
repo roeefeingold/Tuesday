@@ -35,13 +35,12 @@ const theme = createTheme({
     MuiTextField: {
       defaultProps: { size: 'small' },
     },
-    MuiCssBaseline: {
-      styleOverrides: {
-        body: { direction: 'rtl' },
-      },
-    },
   },
 });
+
+// Set dir on document element to ensure all flexbox inherits RTL
+document.documentElement.dir = 'rtl';
+document.body.dir = 'rtl';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

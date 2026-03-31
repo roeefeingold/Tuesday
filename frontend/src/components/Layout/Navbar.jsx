@@ -58,7 +58,7 @@ export default function Navbar() {
         zIndex: 1201,
       }}
     >
-      <Toolbar dir="rtl">
+      <Toolbar>
         <Typography
           variant="h5"
           sx={{ fontWeight: 700, color: '#0073ea', cursor: 'pointer' }}

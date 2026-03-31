@@ -95,8 +95,8 @@ export default function BoardPage() {
   };
 
   return (
-    <Box dir="rtl">
-      <Box dir="rtl" sx={{ display: 'flex', alignItems: 'center', mb: 3, gap: 1.5, flexWrap: 'wrap' }}>
+    <Box>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, gap: 1.5, flexWrap: 'wrap' }}>
         <Button
           variant="contained"
           startIcon={<AddIcon />}

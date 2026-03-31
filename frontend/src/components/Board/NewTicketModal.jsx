@@ -56,7 +56,7 @@ export default function NewTicketModal({ isOpen, onClose, onCreated }) {
       onClose={onClose}
       maxWidth="sm"
       fullWidth
-      dir="rtl"
+     
       TransitionProps={{ onEnter: handleOpen }}
     >
       <DialogTitle sx={{ fontWeight: 600, textAlign: 'right' }}>
