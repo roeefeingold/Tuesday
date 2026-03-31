@@ -25,15 +25,15 @@ export default function RegisterPage() {
     setError('');
 
     if (!fullName.trim() || !email.trim() || !password) {
-      setError('\u05E0\u05D0 \u05DC\u05DE\u05DC\u05D0 \u05D0\u05EA \u05DB\u05DC \u05D4\u05E9\u05D3\u05D5\u05EA');
+      setError('נא למלא את כל השדות');
       return;
     }
     if (password.length < 6) {
-      setError('\u05D4\u05E1\u05D9\u05E1\u05DE\u05D4 \u05D7\u05D9\u05D9\u05D1\u05EA \u05DC\u05D4\u05DB\u05D9\u05DC \u05DC\u05E4\u05D7\u05D5\u05EA 6 \u05EA\u05D5\u05D5\u05D9\u05DD');
+      setError('הסיסמה חייבת להכיל לפחות 6 תווים');
       return;
     }
     if (password !== confirmPassword) {
-      setError('\u05D4\u05E1\u05D9\u05E1\u05DE\u05D0\u05D5\u05EA \u05DC\u05D0 \u05EA\u05D5\u05D0\u05DE\u05D5\u05EA');
+      setError('הסיסמאות לא תואמות');
       return;
     }
 
@@ -50,7 +50,7 @@ export default function RegisterPage() {
       if (typeof detail === 'string') {
         setError(detail);
       } else {
-        setError('\u05D4\u05D4\u05E8\u05E9\u05DE\u05D4 \u05E0\u05DB\u05E9\u05DC\u05D4. \u05E0\u05E1\u05D4 \u05E9\u05D5\u05D1.');
+        setError('ההרשמה נכשלה. נסה שוב.');
       }
     } finally {
       setLoading(false);
@@ -72,17 +72,18 @@ export default function RegisterPage() {
         <Paper
           elevation={8}
           sx={{ p: 5, maxWidth: 420, width: '100%', borderRadius: 3, textAlign: 'center' }}
+          dir="rtl"
         >
           <CheckCircleOutlineIcon sx={{ fontSize: 60, color: '#00c875', mb: 2 }} />
           <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
-            {'\u05D4\u05D4\u05E8\u05E9\u05DE\u05D4 \u05D4\u05EA\u05E7\u05D1\u05DC\u05D4!'}
+            ההרשמה התקבלה!
           </Typography>
           <Typography variant="body1" sx={{ color: 'text.secondary', mb: 3 }}>
-            {'\u05DE\u05E0\u05D4\u05DC \u05D4\u05DE\u05E2\u05E8\u05DB\u05EA \u05D9\u05D0\u05E9\u05E8 \u05D0\u05EA \u05D7\u05E9\u05D1\u05D5\u05E0\u05DA.'}
+            מנהל המערכת יאשר את חשבונך.
           </Typography>
           <Link to="/login" style={{ textDecoration: 'none' }}>
             <Button variant="contained" size="large">
-              {'\u05D7\u05D6\u05E8\u05D4 \u05DC\u05D4\u05EA\u05D7\u05D1\u05E8\u05D5\u05EA'}
+              חזרה להתחברות
             </Button>
           </Link>
         </Paper>
@@ -104,12 +105,13 @@ export default function RegisterPage() {
       <Paper
         elevation={8}
         sx={{ p: 5, maxWidth: 420, width: '100%', borderRadius: 3, textAlign: 'center' }}
+        dir="rtl"
       >
         <Typography variant="h3" sx={{ fontWeight: 800, color: '#0073ea', mb: 1 }}>
           Tuesday
         </Typography>
         <Typography variant="body1" sx={{ color: 'text.secondary', mb: 4 }}>
-          {'\u05D4\u05E8\u05E9\u05DE\u05D4 \u05DC\u05DE\u05E2\u05E8\u05DB\u05EA'}
+          הרשמה למערכת
         </Typography>
 
         <form onSubmit={handleSubmit}>
@@ -120,35 +122,35 @@ export default function RegisterPage() {
           )}
 
           <TextField
-            label={'\u05E9\u05DD \u05DE\u05DC\u05D0'}
+            label="שם מלא"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             fullWidth
-            sx={{ mb: 2 }}
+            sx={{ mb: 2.5 }}
             autoFocus
           />
 
           <TextField
-            label={'\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC'}
+            label="אימייל"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             fullWidth
-            sx={{ mb: 2 }}
+            sx={{ mb: 2.5 }}
           />
 
           <TextField
-            label={'\u05E1\u05D9\u05E1\u05DE\u05D4'}
+            label="סיסמה"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             fullWidth
-            sx={{ mb: 2 }}
-            placeholder={'\u05DC\u05E4\u05D7\u05D5\u05EA 6 \u05EA\u05D5\u05D5\u05D9\u05DD'}
+            sx={{ mb: 2.5 }}
+            placeholder="לפחות 6 תווים"
           />
 
           <TextField
-            label={'\u05D0\u05D9\u05DE\u05D5\u05EA \u05E1\u05D9\u05E1\u05DE\u05D4'}
+            label="אימות סיסמה"
             type="password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
@@ -164,14 +166,14 @@ export default function RegisterPage() {
             disabled={loading}
             sx={{ py: 1.3, fontSize: '1rem', mb: 2 }}
           >
-            {loading ? '\u05E0\u05E8\u05E9\u05DD...' : '\u05D4\u05E8\u05E9\u05DE\u05D4'}
+            {loading ? 'נרשם...' : 'הרשמה'}
           </Button>
         </form>
 
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          {'\u05DB\u05D1\u05E8 \u05D9\u05E9 \u05DC\u05DA \u05D7\u05E9\u05D1\u05D5\u05DF? '}
+          {'כבר יש לך חשבון? '}
           <Link to="/login" style={{ color: '#0073ea', textDecoration: 'none', fontWeight: 500 }}>
-            {'\u05D4\u05EA\u05D7\u05D1\u05E8 \u05DB\u05D0\u05DF'}
+            התחבר כאן
           </Link>
         </Typography>
       </Paper>

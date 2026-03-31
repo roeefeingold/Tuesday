@@ -23,7 +23,6 @@ import {
   MenuItem,
   Divider,
   CircularProgress,
-  IconButton,
   Alert,
 } from '@mui/material';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -75,7 +74,7 @@ export default function TicketDetailPage() {
       await patch(`/tickets/${id}/status`, { status: newStatus });
       await fetchTicket();
     } catch (err) {
-      alert(err.response?.data?.detail || '\u05E0\u05DB\u05E9\u05DC \u05D1\u05E2\u05D3\u05DB\u05D5\u05DF \u05D4\u05E1\u05D8\u05D8\u05D5\u05E1');
+      alert(err.response?.data?.detail || 'נכשל בעדכון הסטטוס');
     } finally {
       setStatusLoading(false);
     }
@@ -86,7 +85,7 @@ export default function TicketDetailPage() {
       await patch(`/tickets/${id}/assign`, { assignee_id: assigneeId || null });
       await fetchTicket();
     } catch (err) {
-      alert(err.response?.data?.detail || '\u05E0\u05DB\u05E9\u05DC \u05D1\u05E9\u05D9\u05D5\u05DA');
+      alert(err.response?.data?.detail || 'נכשל בשיוך');
     }
   };
 
@@ -108,7 +107,7 @@ export default function TicketDetailPage() {
       setEditing(false);
       await fetchTicket();
     } catch (err) {
-      alert(err.response?.data?.detail || '\u05E0\u05DB\u05E9\u05DC \u05D1\u05E2\u05D3\u05DB\u05D5\u05DF');
+      alert(err.response?.data?.detail || 'נכשל בעדכון');
     } finally {
       setSaving(false);
     }
@@ -123,20 +122,20 @@ export default function TicketDetailPage() {
       setCommentText('');
       await fetchTicket();
     } catch (err) {
-      alert(err.response?.data?.detail || '\u05E0\u05DB\u05E9\u05DC \u05D1\u05D4\u05D5\u05E1\u05E4\u05EA \u05EA\u05D2\u05D5\u05D1\u05D4');
+      alert(err.response?.data?.detail || 'נכשל בהוספת תגובה');
     } finally {
       setSubmittingComment(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!window.confirm('\u05D4\u05D0\u05DD \u05D0\u05EA\u05D4 \u05D1\u05D8\u05D5\u05D7 \u05E9\u05D1\u05E8\u05E6\u05D5\u05E0\u05DA \u05DC\u05DE\u05D7\u05D5\u05E7 \u05E7\u05E8\u05D9\u05D0\u05D4 \u05D6\u05D5?')) return;
+    if (!window.confirm('האם אתה בטוח שברצונך למחוק תקלה זו?')) return;
     setDeleteError('');
     try {
       await del(`/tickets/${id}`);
       navigate('/board');
     } catch (err) {
-      setDeleteError(err.response?.data?.detail || '\u05E0\u05DB\u05E9\u05DC \u05D1\u05DE\u05D7\u05D9\u05E7\u05EA \u05D4\u05E7\u05E8\u05D9\u05D0\u05D4');
+      setDeleteError(err.response?.data?.detail || 'נכשל במחיקת התקלה');
     }
   };
 
@@ -152,10 +151,10 @@ export default function TicketDetailPage() {
     return (
       <Box sx={{ textAlign: 'center', py: 8 }}>
         <Typography variant="h6" sx={{ mb: 2 }}>
-          {'\u05D4\u05E7\u05E8\u05D9\u05D0\u05D4 \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D4'}
+          התקלה לא נמצאה
         </Typography>
         <Button variant="outlined" onClick={() => navigate('/board')}>
-          {'\u05D7\u05D6\u05E8\u05D4 \u05DC\u05DC\u05D5\u05D7'}
+          חזרה ללוח
         </Button>
       </Box>
     );
@@ -171,25 +170,29 @@ export default function TicketDetailPage() {
   const ageLabel = getAgeLabel(days);
 
   return (
-    <Box>
+    <Box sx={{ maxWidth: 1100, mx: 'auto' }}>
       <Button
         startIcon={<ArrowForwardIcon />}
         onClick={() => navigate('/board')}
         sx={{ mb: 2, color: 'text.secondary' }}
       >
-        {'\u05D7\u05D6\u05E8\u05D4 \u05DC\u05DC\u05D5\u05D7'}
+        חזרה ללוח
       </Button>
+
+      {deleteError && (
+        <Alert severity="error" sx={{ mb: 2 }}>{deleteError}</Alert>
+      )}
 
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: { xs: '1fr', md: '1fr 300px' },
+          gridTemplateColumns: { xs: '1fr', md: '1fr 280px' },
           gap: 3,
           alignItems: 'start',
         }}
       >
         {/* Main Content */}
-        <Paper sx={{ p: 3, borderRadius: 2 }}>
+        <Paper sx={{ p: 3.5, borderRadius: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, flexWrap: 'wrap' }}>
             <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
               #{ticket.id}
@@ -204,18 +207,21 @@ export default function TicketDetailPage() {
               size="small"
               sx={{ backgroundColor: priorityInfo.color, color: '#fff', fontWeight: 600 }}
             />
+            <Typography variant="body2" sx={{ mr: 'auto' }}>
+              {ageEmoji} פתוח {ageLabel}
+            </Typography>
           </Box>
 
           {editing ? (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 3 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mb: 3 }}>
               <TextField
-                label={'\u05DB\u05D5\u05EA\u05E8\u05EA'}
+                label="כותרת"
                 value={editTitle}
                 onChange={(e) => setEditTitle(e.target.value)}
                 fullWidth
               />
               <TextField
-                label={'\u05EA\u05D9\u05D0\u05D5\u05E8'}
+                label="תיאור"
                 value={editDescription}
                 onChange={(e) => setEditDescription(e.target.value)}
                 multiline
@@ -224,63 +230,72 @@ export default function TicketDetailPage() {
               />
               <TextField
                 select
-                label={'\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA'}
+                label="עדיפות"
                 value={editPriority}
                 onChange={(e) => setEditPriority(e.target.value)}
                 fullWidth
               >
                 {PRIORITIES.map((p) => (
                   <MenuItem key={p.value} value={p.value}>
-                    {p.label}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box sx={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: p.color }} />
+                      {p.label}
+                    </Box>
                   </MenuItem>
                 ))}
               </TextField>
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <Button variant="outlined" onClick={() => setEditing(false)}>
-                  {'\u05D1\u05D9\u05D8\u05D5\u05DC'}
-                </Button>
+              <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-start' }}>
                 <Button variant="contained" onClick={handleSaveEdit} disabled={saving}>
-                  {saving ? '\u05E9\u05D5\u05DE\u05E8...' : '\u05E9\u05DE\u05D9\u05E8\u05D4'}
+                  {saving ? 'שומר...' : 'שמירה'}
+                </Button>
+                <Button onClick={() => setEditing(false)} color="inherit">
+                  ביטול
                 </Button>
               </Box>
             </Box>
           ) : (
             <>
-              <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
+              <Typography variant="h5" sx={{ fontWeight: 700, mb: 1.5, lineHeight: 1.4 }}>
                 {ticket.title}
               </Typography>
               {ticket.description && (
-                <Typography variant="body1" sx={{ color: 'text.secondary', mb: 2, whiteSpace: 'pre-wrap' }}>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: 'text.secondary',
+                    mb: 2,
+                    whiteSpace: 'pre-wrap',
+                    lineHeight: 1.7,
+                  }}
+                >
                   {ticket.description}
                 </Typography>
               )}
-
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                  {`\u05E4\u05EA\u05D5\u05D7 \u05DB\u05D1\u05E8 ${ageLabel} ${ageEmoji}`}
-                </Typography>
-              </Box>
-
               {canEdit && (
-                <IconButton size="small" onClick={handleStartEditing} sx={{ mb: 1 }}>
-                  <EditIcon fontSize="small" />
-                </IconButton>
+                <Button
+                  size="small"
+                  startIcon={<EditIcon />}
+                  onClick={handleStartEditing}
+                  sx={{ mb: 1 }}
+                >
+                  עריכה
+                </Button>
               )}
             </>
           )}
 
-          <Divider sx={{ my: 2 }} />
+          <Divider sx={{ my: 2.5 }} />
 
           {/* Status Actions */}
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 3 }}>
+          <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', mb: 1 }}>
             {ticket.status === 'open' && (
               <Button
                 variant="contained"
-                color="warning"
+                sx={{ backgroundColor: '#fdab3d', '&:hover': { backgroundColor: '#e99a2e' } }}
                 onClick={() => handleStatusChange('in_process')}
                 disabled={statusLoading}
               >
-                {'\u05D4\u05EA\u05D7\u05DC \u05D8\u05D9\u05E4\u05D5\u05DC'}
+                התחל טיפול
               </Button>
             )}
             {ticket.status === 'in_process' && (
@@ -291,14 +306,14 @@ export default function TicketDetailPage() {
                   onClick={() => handleStatusChange('solved')}
                   disabled={statusLoading}
                 >
-                  {'\u05E1\u05DE\u05DF \u05DB\u05D8\u05D5\u05E4\u05DC'}
+                  סמן כטופל
                 </Button>
                 <Button
                   variant="outlined"
                   onClick={() => handleStatusChange('open')}
                   disabled={statusLoading}
                 >
-                  {'\u05D4\u05D7\u05D6\u05E8 \u05DC\u05E4\u05EA\u05D5\u05D7'}
+                  החזר לפתוח
                 </Button>
               </>
             )}
@@ -309,7 +324,7 @@ export default function TicketDetailPage() {
                 onClick={() => handleStatusChange('open')}
                 disabled={statusLoading}
               >
-                {'\u05E4\u05EA\u05D7 \u05DE\u05D7\u05D3\u05E9'}
+                פתח מחדש
               </Button>
             )}
             {canDelete && (
@@ -319,65 +334,69 @@ export default function TicketDetailPage() {
                 startIcon={<DeleteIcon />}
                 onClick={handleDelete}
               >
-                {'\u05DE\u05D7\u05E7 \u05E7\u05E8\u05D9\u05D0\u05D4'}
+                מחק תקלה
               </Button>
             )}
           </Box>
 
-          {deleteError && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {deleteError}
-            </Alert>
-          )}
-
-          <Divider sx={{ my: 2 }} />
+          <Divider sx={{ my: 2.5 }} />
 
           {/* Comments */}
           <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-            {`\u05EA\u05D2\u05D5\u05D1\u05D5\u05EA (${comments.length})`}
+            תגובות ({comments.length})
           </Typography>
 
-          <Box component="form" onSubmit={handleAddComment} sx={{ mb: 3 }}>
+          <form onSubmit={handleAddComment}>
             <TextField
-              placeholder={'\u05DB\u05EA\u05D5\u05D1 \u05EA\u05D2\u05D5\u05D1\u05D4...'}
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
               multiline
               rows={3}
               fullWidth
-              sx={{ mb: 1 }}
+              placeholder="כתוב תגובה..."
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              sx={{ mb: 1.5 }}
             />
             <Button
               type="submit"
               variant="contained"
               size="small"
               disabled={submittingComment || !commentText.trim()}
+              sx={{ mb: 3 }}
             >
-              {submittingComment ? '\u05E9\u05D5\u05DC\u05D7...' : '\u05E9\u05DC\u05D7'}
+              {submittingComment ? 'שולח...' : 'שלח'}
             </Button>
-          </Box>
+          </form>
 
           {comments.length === 0 ? (
             <Typography variant="body2" sx={{ color: 'text.secondary', textAlign: 'center', py: 2 }}>
-              {'\u05D0\u05D9\u05DF \u05EA\u05D2\u05D5\u05D1\u05D5\u05EA \u05E2\u05D3\u05D9\u05D9\u05DF. \u05D4\u05D9\u05D5 \u05D4\u05E8\u05D0\u05E9\u05D5\u05E0\u05D9\u05DD \u05DC\u05D4\u05D2\u05D9\u05D1.'}
+              אין תגובות עדיין. היה הראשון להגיב.
             </Typography>
           ) : (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               {comments.map((comment) => (
                 <Box key={comment.id} sx={{ display: 'flex', gap: 1.5 }}>
-                  <Avatar sx={{ width: 32, height: 32, fontSize: '0.75rem', bgcolor: '#0073ea' }}>
-                    {getInitials(comment.author_name || '?')}
+                  <Avatar
+                    sx={{ width: 32, height: 32, fontSize: '0.75rem', bgcolor: '#0073ea', flexShrink: 0 }}
+                  >
+                    {getInitials(comment.author_name || 'Unknown')}
                   </Avatar>
-                  <Box sx={{ flex: 1 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                  <Box
+                    sx={{
+                      flex: 1,
+                      backgroundColor: '#f6f7fb',
+                      borderRadius: 2,
+                      p: 2,
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                       <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                        {comment.author_name || '\u05DC\u05D0 \u05D9\u05D3\u05D5\u05E2'}
+                        {comment.author_name || 'Unknown'}
                       </Typography>
                       <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                         {timeAgo(comment.created_at)}
                       </Typography>
                     </Box>
-                    <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                    <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
                       {comment.body}
                     </Typography>
                   </Box>
@@ -388,41 +407,43 @@ export default function TicketDetailPage() {
         </Paper>
 
         {/* Sidebar */}
-        <Paper sx={{ p: 3, borderRadius: 2 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2 }}>
-            {'\u05E4\u05E8\u05D8\u05D9\u05DD'}
+        <Paper sx={{ p: 2.5, borderRadius: 2, position: { md: 'sticky' }, top: { md: 80 } }}>
+          <Typography
+            variant="subtitle2"
+            sx={{ color: 'text.secondary', textTransform: 'uppercase', letterSpacing: 0.5, mb: 2 }}
+          >
+            פרטים
           </Typography>
 
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
             <Box>
-              <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-                {'\u05DE\u05D3\u05D5\u05D5\u05D7'}
+              <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mb: 0.5 }}>
+                מדווח
               </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Avatar sx={{ width: 28, height: 28, fontSize: '0.7rem', bgcolor: '#0073ea' }}>
-                  {getInitials(ticket.reporter_name || '?')}
+                  {getInitials(ticket.reporter_name)}
                 </Avatar>
-                <Typography variant="body2">
-                  {ticket.reporter_name || '\u05DC\u05D0 \u05D9\u05D3\u05D5\u05E2'}
+                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                  {ticket.reporter_name}
                 </Typography>
               </Box>
             </Box>
 
             <Box>
-              <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-                {'\u05DE\u05E9\u05D5\u05D9\u05DA'}
+              <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mb: 0.5 }}>
+                משויך
               </Typography>
               {isAdmin ? (
                 <TextField
                   select
                   size="small"
                   value={ticket.assignee_id || ''}
-                  onChange={(e) => handleAssign(e.target.value ? Number(e.target.value) : null)}
+                  onChange={(e) => handleAssign(e.target.value)}
                   fullWidth
-                  sx={{ mt: 0.5 }}
                 >
                   <MenuItem value="">
-                    <em>{'\u05DC\u05DC\u05D0 \u05E9\u05D9\u05D5\u05DA'}</em>
+                    <em>ללא שיוך</em>
                   </MenuItem>
                   {activeUsers.map((u) => (
                     <MenuItem key={u.id} value={u.id}>
@@ -431,37 +452,33 @@ export default function TicketDetailPage() {
                   ))}
                 </TextField>
               ) : ticket.assignee_name ? (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <Avatar sx={{ width: 28, height: 28, fontSize: '0.7rem', bgcolor: '#0073ea' }}>
                     {getInitials(ticket.assignee_name)}
                   </Avatar>
-                  <Typography variant="body2">
+                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
                     {ticket.assignee_name}
                   </Typography>
                 </Box>
               ) : (
-                <Typography variant="body2" sx={{ color: 'text.disabled', mt: 0.5 }}>
-                  {'\u05DC\u05D0 \u05E9\u05D5\u05D9\u05DA'}
+                <Typography variant="body2" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
+                  לא שויך
                 </Typography>
               )}
             </Box>
 
             <Box>
-              <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-                {'\u05E0\u05E4\u05EA\u05D7'}
+              <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mb: 0.5 }}>
+                נפתח
               </Typography>
-              <Typography variant="body2" sx={{ mt: 0.5 }}>
-                {timeAgo(ticket.created_at)}
-              </Typography>
+              <Typography variant="body2">{timeAgo(ticket.created_at)}</Typography>
             </Box>
 
             <Box>
-              <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-                {'\u05E2\u05D5\u05D3\u05DB\u05DF'}
+              <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mb: 0.5 }}>
+                עודכן
               </Typography>
-              <Typography variant="body2" sx={{ mt: 0.5 }}>
-                {timeAgo(ticket.updated_at)}
-              </Typography>
+              <Typography variant="body2">{timeAgo(ticket.updated_at)}</Typography>
             </Box>
           </Box>
         </Paper>

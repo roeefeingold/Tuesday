@@ -21,7 +21,7 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email.trim() || !password) {
-      setError('\u05E0\u05D0 \u05DC\u05D4\u05D6\u05D9\u05DF \u05D0\u05D9\u05DE\u05D9\u05D9\u05DC \u05D5\u05E1\u05D9\u05E1\u05DE\u05D4');
+      setError('נא להזין אימייל וסיסמה');
       return;
     }
     setLoading(true);
@@ -34,7 +34,7 @@ export default function LoginPage() {
       if (typeof detail === 'string') {
         setError(detail);
       } else {
-        setError('\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC \u05D0\u05D5 \u05E1\u05D9\u05E1\u05DE\u05D4 \u05E9\u05D2\u05D5\u05D9\u05D9\u05DD');
+        setError('אימייל או סיסמה שגויים');
       }
     } finally {
       setLoading(false);
@@ -61,6 +61,7 @@ export default function LoginPage() {
           borderRadius: 3,
           textAlign: 'center',
         }}
+        dir="rtl"
       >
         <Typography
           variant="h3"
@@ -69,7 +70,7 @@ export default function LoginPage() {
           Tuesday
         </Typography>
         <Typography variant="body1" sx={{ color: 'text.secondary', mb: 4 }}>
-          {'\u05DE\u05E2\u05E8\u05DB\u05EA \u05E0\u05D9\u05D4\u05D5\u05DC \u05E7\u05E8\u05D9\u05D0\u05D5\u05EA \u05DC\u05E6\u05D5\u05D5\u05EA'}
+          מערכת ניהול תקלות לצוות
         </Typography>
 
         <form onSubmit={handleSubmit}>
@@ -80,17 +81,17 @@ export default function LoginPage() {
           )}
 
           <TextField
-            label={'\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC'}
+            label="אימייל"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             fullWidth
-            sx={{ mb: 2 }}
+            sx={{ mb: 2.5 }}
             autoFocus
           />
 
           <TextField
-            label={'\u05E1\u05D9\u05E1\u05DE\u05D4'}
+            label="סיסמה"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -106,14 +107,14 @@ export default function LoginPage() {
             disabled={loading}
             sx={{ py: 1.3, fontSize: '1rem', mb: 2 }}
           >
-            {loading ? '\u05DE\u05EA\u05D7\u05D1\u05E8...' : '\u05DB\u05E0\u05D9\u05E1\u05D4'}
+            {loading ? 'מתחבר...' : 'כניסה'}
           </Button>
         </form>
 
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          {'\u05D0\u05D9\u05DF \u05DC\u05DA \u05D7\u05E9\u05D1\u05D5\u05DF? '}
+          {'אין לך חשבון? '}
           <Link to="/register" style={{ color: '#0073ea', textDecoration: 'none', fontWeight: 500 }}>
-            {'\u05D4\u05D9\u05E8\u05E9\u05DD \u05DB\u05D0\u05DF'}
+            הירשם כאן
           </Link>
         </Typography>
       </Paper>

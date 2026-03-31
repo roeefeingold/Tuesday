@@ -3,8 +3,17 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { CacheProvider } from '@emotion/react';
+import createCache from '@emotion/cache';
+import { prefixer } from 'stylis';
+import rtlPlugin from 'stylis-plugin-rtl';
 import App from './App';
 import './index.css';
+
+const cacheRtl = createCache({
+  key: 'muirtl',
+  stylisPlugins: [prefixer, rtlPlugin],
+});
 
 const theme = createTheme({
   direction: 'rtl',
@@ -14,7 +23,7 @@ const theme = createTheme({
     background: { default: '#f6f7fb', paper: '#ffffff' },
   },
   typography: {
-    fontFamily: "'Rubik', 'Inter', sans-serif",
+    fontFamily: "'Rubik', 'Inter', system-ui, sans-serif",
   },
   shape: { borderRadius: 8 },
   components: {
@@ -26,25 +35,9 @@ const theme = createTheme({
     MuiTextField: {
       defaultProps: { size: 'small' },
     },
-    MuiInputBase: {
+    MuiCssBaseline: {
       styleOverrides: {
-        root: { direction: 'rtl' },
-      },
-    },
-    MuiOutlinedInput: {
-      styleOverrides: {
-        notchedOutline: {
-          textAlign: 'right',
-        },
-      },
-    },
-    MuiInputLabel: {
-      styleOverrides: {
-        root: {
-          right: 14,
-          left: 'auto',
-          transformOrigin: 'top right',
-        },
+        body: { direction: 'rtl' },
       },
     },
   },
@@ -52,11 +45,13 @@ const theme = createTheme({
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </ThemeProvider>
+    <CacheProvider value={cacheRtl}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </ThemeProvider>
+    </CacheProvider>
   </React.StrictMode>
 );

@@ -3,7 +3,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { useAuth } from '../../context/AuthContext';
 import { getInitials } from '../../utils/helpers';
 
-export default function Navbar({ sidebarWidth }) {
+export default function Navbar() {
   const { user, logout } = useAuth();
 
   return (
@@ -35,7 +35,7 @@ export default function Navbar({ sidebarWidth }) {
           >
             {getInitials(user?.full_name)}
           </Avatar>
-          <Tooltip title="\u05D4\u05EA\u05E0\u05EA\u05E7\u05D5\u05EA">
+          <Tooltip title="התנתקות">
             <IconButton onClick={logout} size="small" sx={{ color: 'text.secondary' }}>
               <LogoutIcon fontSize="small" />
             </IconButton>

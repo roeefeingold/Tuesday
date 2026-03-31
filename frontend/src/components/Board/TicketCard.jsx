@@ -14,22 +14,22 @@ export default function TicketCard({ ticket, onClick }) {
       sx={{
         cursor: 'pointer',
         border: '1px solid #e6e9ef',
-        borderRadius: 1.5,
-        transition: 'all 0.15s ease',
+        borderRadius: 2,
+        transition: 'all 0.2s ease',
         backgroundColor: '#fff',
         '&:hover': {
-          elevation: 2,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
           borderColor: '#c4c4c4',
+          transform: 'translateY(-1px)',
         },
       }}
     >
-      <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.75 }}>
-          <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+      <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+          <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500, fontSize: '0.75rem' }}>
             #{ticket.id}
           </Typography>
-          <Tooltip title={priority.label}>
+          <Tooltip title={priority.label} placement="top">
             <Box
               sx={{
                 width: 10,
@@ -46,25 +46,26 @@ export default function TicketCard({ ticket, onClick }) {
           variant="body2"
           sx={{
             fontWeight: 600,
-            mb: 1,
+            mb: 1.5,
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
             overflow: 'hidden',
-            lineHeight: 1.4,
+            lineHeight: 1.5,
+            fontSize: '0.875rem',
           }}
         >
           {ticket.title}
         </Typography>
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
             {ticket.assignee_name ? (
-              <Tooltip title={ticket.assignee_name}>
+              <Tooltip title={ticket.assignee_name} placement="top">
                 <Avatar
                   sx={{
-                    width: 22,
-                    height: 22,
+                    width: 24,
+                    height: 24,
                     fontSize: '0.65rem',
                     bgcolor: '#0073ea',
                   }}
@@ -74,13 +75,13 @@ export default function TicketCard({ ticket, onClick }) {
               </Tooltip>
             ) : (
               <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: '0.7rem' }}>
-                {'\u05DC\u05D0 \u05E9\u05D5\u05D9\u05DA'}
+                לא שויך
               </Typography>
             )}
           </Box>
 
-          <Tooltip title={`${'\u05E4\u05EA\u05D5\u05D7'} ${ageLabel}`}>
-            <Typography variant="caption" sx={{ fontSize: '0.85rem', cursor: 'default' }}>
+          <Tooltip title={`פתוח ${ageLabel}`} placement="top">
+            <Typography variant="caption" sx={{ fontSize: '0.95rem', cursor: 'default', lineHeight: 1 }}>
               {ageEmoji}
             </Typography>
           </Tooltip>

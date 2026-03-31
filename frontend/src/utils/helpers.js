@@ -6,25 +6,28 @@ export function timeAgo(dateString) {
   const now = new Date();
   const seconds = Math.floor((now - date) / 1000);
 
-  if (seconds < 60) return '\u05E2\u05DB\u05E9\u05D9\u05D5';
+  if (seconds < 60) return 'עכשיו';
 
   const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `\u05DC\u05E4\u05E0\u05D9 ${minutes} \u05D3\u05E7\u05D5\u05EA`;
+  if (minutes < 60) return `לפני ${minutes} דקות`;
 
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `\u05DC\u05E4\u05E0\u05D9 ${hours} \u05E9\u05E2\u05D5\u05EA`;
+  if (hours < 24) return `לפני ${hours} שעות`;
 
   const days = Math.floor(hours / 24);
-  if (days < 7) return `\u05DC\u05E4\u05E0\u05D9 ${days} \u05D9\u05DE\u05D9\u05DD`;
+  if (days === 1) return 'לפני יום';
+  if (days < 7) return `לפני ${days} ימים`;
 
   const weeks = Math.floor(days / 7);
-  if (weeks < 4) return `\u05DC\u05E4\u05E0\u05D9 ${weeks} \u05E9\u05D1\u05D5\u05E2\u05D5\u05EA`;
+  if (weeks === 1) return 'לפני שבוע';
+  if (weeks < 4) return `לפני ${weeks} שבועות`;
 
   const months = Math.floor(days / 30);
-  if (months < 12) return `\u05DC\u05E4\u05E0\u05D9 ${months} \u05D7\u05D5\u05D3\u05E9\u05D9\u05DD`;
+  if (months === 1) return 'לפני חודש';
+  if (months < 12) return `לפני ${months} חודשים`;
 
   const years = Math.floor(days / 365);
-  return `\u05DC\u05E4\u05E0\u05D9 ${years} \u05E9\u05E0\u05D9\u05DD`;
+  return `לפני ${years} שנים`;
 }
 
 export function getTicketAge(createdAt) {
@@ -35,19 +38,19 @@ export function getTicketAge(createdAt) {
 }
 
 export function getAgeEmoji(days) {
-  if (days <= 2) return '\u{1F60A}';
-  if (days <= 5) return '\u{1F610}';
-  if (days <= 9) return '\u{1F61F}';
-  return '\u{1F620}';
+  if (days <= 2) return '😊';
+  if (days <= 5) return '😐';
+  if (days <= 9) return '😟';
+  return '😠';
 }
 
 export function getAgeLabel(days) {
-  if (days === 0) return '\u05D4\u05D9\u05D5\u05DD';
-  if (days === 1) return '\u05D9\u05D5\u05DD 1';
-  if (days < 7) return `${days} \u05D9\u05DE\u05D9\u05DD`;
-  if (days < 14) return '\u05E9\u05D1\u05D5\u05E2';
-  if (days < 30) return `${Math.floor(days / 7)} \u05E9\u05D1\u05D5\u05E2\u05D5\u05EA`;
-  return `${Math.floor(days / 30)} \u05D7\u05D5\u05D3\u05E9\u05D9\u05DD`;
+  if (days === 0) return 'היום';
+  if (days === 1) return 'יום 1';
+  if (days < 7) return `${days} ימים`;
+  if (days < 14) return 'שבוע';
+  if (days < 30) return `${Math.floor(days / 7)} שבועות`;
+  return `${Math.floor(days / 30)} חודשים`;
 }
 
 export function getInitials(name) {

@@ -72,7 +72,7 @@ export default function BoardPage() {
   };
 
   return (
-    <Box>
+    <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
       <Box
         sx={{
           display: 'flex',
@@ -84,13 +84,13 @@ export default function BoardPage() {
         }}
       >
         <Typography variant="h5" sx={{ fontWeight: 700 }}>
-          {'\u05DC\u05D5\u05D7 \u05E7\u05E8\u05D9\u05D0\u05D5\u05EA'}
+          לוח תקלות
         </Typography>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
           <TextField
             size="small"
-            placeholder={'\u05D7\u05D9\u05E4\u05D5\u05E9 \u05E7\u05E8\u05D9\u05D0\u05D5\u05EA...'}
+            placeholder="חיפוש תקלות..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             InputProps={{
@@ -109,11 +109,8 @@ export default function BoardPage() {
             value={filterPriority}
             onChange={(e) => setFilterPriority(e.target.value)}
             sx={{ minWidth: 140 }}
-            displayEmpty
           >
-            <MenuItem value="">
-              {'\u05DB\u05DC \u05D4\u05E2\u05D3\u05D9\u05E4\u05D5\u05D9\u05D5\u05EA'}
-            </MenuItem>
+            <MenuItem value="">כל העדיפויות</MenuItem>
             {PRIORITIES.map((p) => (
               <MenuItem key={p.value} value={p.value}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -136,15 +133,16 @@ export default function BoardPage() {
             }}
           >
             <PersonIcon fontSize="small" sx={{ ml: 0.5 }} />
-            {'\u05D4\u05E7\u05E8\u05D9\u05D0\u05D5\u05EA \u05E9\u05DC\u05D9'}
+            התקלות שלי
           </ToggleButton>
 
           <Button
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => setShowNewTicket(true)}
+            sx={{ px: 3 }}
           >
-            {'\u05E7\u05E8\u05D9\u05D0\u05D4 \u05D7\u05D3\u05E9\u05D4'}
+            תקלה חדשה
           </Button>
         </Box>
       </Box>
@@ -158,7 +156,7 @@ export default function BoardPage() {
           sx={{
             display: 'grid',
             gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' },
-            gap: 2,
+            gap: 2.5,
             alignItems: 'start',
           }}
         >

@@ -38,7 +38,7 @@ export default function NewTicketModal({ isOpen, onClose, onCreated }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title.trim()) {
-      setError('\u05DB\u05D5\u05EA\u05E8\u05EA \u05D4\u05D9\u05D0 \u05E9\u05D3\u05D4 \u05D7\u05D5\u05D1\u05D4');
+      setError('כותרת היא שדה חובה');
       return;
     }
     setSubmitting(true);
@@ -56,16 +56,16 @@ export default function NewTicketModal({ isOpen, onClose, onCreated }) {
       onCreated();
       onClose();
     } catch (err) {
-      setError(err.response?.data?.detail || '\u05E0\u05DB\u05E9\u05DC \u05D1\u05D9\u05E6\u05D9\u05E8\u05EA \u05D4\u05E7\u05E8\u05D9\u05D0\u05D4');
+      setError(err.response?.data?.detail || 'נכשל ביצירת התקלה');
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <Dialog open={isOpen} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ fontWeight: 600 }}>
-        {'\u05E7\u05E8\u05D9\u05D0\u05D4 \u05D7\u05D3\u05E9\u05D4'}
+    <Dialog open={isOpen} onClose={onClose} maxWidth="sm" fullWidth dir="rtl">
+      <DialogTitle sx={{ fontWeight: 600, textAlign: 'right' }}>
+        תקלה חדשה
       </DialogTitle>
       <form onSubmit={handleSubmit}>
         <DialogContent>
@@ -75,30 +75,30 @@ export default function NewTicketModal({ isOpen, onClose, onCreated }) {
             </Alert>
           )}
 
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
             <TextField
-              label={'\u05DB\u05D5\u05EA\u05E8\u05EA'}
+              label="כותרת"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
               fullWidth
               autoFocus
-              placeholder={'\u05DE\u05D4 \u05E6\u05E8\u05D9\u05DA \u05DC\u05D8\u05E4\u05DC?'}
+              placeholder="מה צריך לטפל?"
             />
 
             <TextField
-              label={'\u05EA\u05D9\u05D0\u05D5\u05E8'}
+              label="תיאור"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               multiline
               rows={4}
               fullWidth
-              placeholder={'\u05E4\u05E8\u05D8\u05D9\u05DD \u05E0\u05D5\u05E1\u05E4\u05D9\u05DD...'}
+              placeholder="פרטים נוספים..."
             />
 
             <TextField
               select
-              label={'\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA'}
+              label="עדיפות"
               value={priority}
               onChange={(e) => setPriority(e.target.value)}
               fullWidth
@@ -115,13 +115,13 @@ export default function NewTicketModal({ isOpen, onClose, onCreated }) {
 
             <TextField
               select
-              label={'\u05E9\u05D9\u05D5\u05DA \u05DC\u05DE\u05E9\u05EA\u05DE\u05E9'}
+              label="שיוך למשתמש"
               value={assigneeId}
               onChange={(e) => setAssigneeId(e.target.value)}
               fullWidth
             >
               <MenuItem value="">
-                <em>{'\u05DC\u05DC\u05D0 \u05E9\u05D9\u05D5\u05DA'}</em>
+                <em>ללא שיוך</em>
               </MenuItem>
               {activeUsers.map((u) => (
                 <MenuItem key={u.id} value={String(u.id)}>
@@ -132,12 +132,12 @@ export default function NewTicketModal({ isOpen, onClose, onCreated }) {
           </Box>
         </DialogContent>
 
-        <DialogActions sx={{ px: 3, pb: 2 }}>
+        <DialogActions sx={{ px: 3, pb: 2.5 }}>
           <Button onClick={onClose} color="inherit">
-            {'\u05D1\u05D9\u05D8\u05D5\u05DC'}
+            ביטול
           </Button>
           <Button type="submit" variant="contained" disabled={submitting}>
-            {submitting ? '\u05D9\u05D5\u05E6\u05E8...' : '\u05D9\u05E6\u05D9\u05E8\u05D4'}
+            {submitting ? 'יוצר...' : 'יצירה'}
           </Button>
         </DialogActions>
       </form>
