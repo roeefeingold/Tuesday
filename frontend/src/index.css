@@ -1,0 +1,47 @@
+:root {
+  --color-open: #0073ea;
+  --color-in-process: #fdab3d;
+  --color-solved: #00c875;
+  --color-bg: #f6f7fb;
+}
+
+/* Force RTL on everything. MUI's stylis-plugin-rtl flips Emotion CSS
+   direction:rtl to ltr, so we must use !important in plain CSS to win. */
+html, body, #root,
+div, main, section, article, aside, nav, header, footer,
+p, h1, h2, h3, h4, h5, h6, span, a, li, ul, ol,
+form, input, textarea, select, button, label,
+table, thead, tbody, tr, th, td {
+  direction: rtl !important;
+  text-align: right;
+}
+
+body {
+  font-family: 'Rubik', 'Inter', system-ui, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: var(--color-bg);
+  scroll-behavior: smooth;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c4c4c4;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a0a0a0;
+}
