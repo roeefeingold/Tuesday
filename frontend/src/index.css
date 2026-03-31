@@ -5,19 +5,25 @@
   --color-bg: #f6f7fb;
 }
 
+/* This CSS file is NOT processed by stylis-plugin-rtl (only Emotion CSS is).
+   So direction: rtl here won't be flipped and will force all elements RTL. */
+*, *::before, *::after {
+  direction: rtl;
+}
+
 body {
   font-family: 'Rubik', 'Inter', system-ui, sans-serif;
   margin: 0;
   padding: 0;
   background: var(--color-bg);
   scroll-behavior: smooth;
+  text-align: right;
 }
 
 * {
   box-sizing: border-box;
 }
 
-/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;

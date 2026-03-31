@@ -198,7 +198,7 @@ export default function TicketDetailPage() {
         }}
       >
         {/* Main Content */}
-        <Paper sx={{ p: 3.5, borderRadius: 2 }}>
+        <Paper sx={{ p: 3.5, borderRadius: 2, textAlign: 'right' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, flexWrap: 'wrap' }}>
             <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
               #{ticket.id}
@@ -399,7 +399,7 @@ export default function TicketDetailPage() {
         </Paper>
 
         {/* Sidebar */}
-        <Paper sx={{ p: 2.5, borderRadius: 2, position: { md: 'sticky' }, top: { md: 80 } }}>
+        <Paper sx={{ p: 2.5, borderRadius: 2, textAlign: 'right', position: { md: 'sticky' }, top: { md: 80 } }}>
           <Typography
             variant="subtitle2"
             sx={{ color: 'text.secondary', textTransform: 'uppercase', letterSpacing: 0.5, mb: 2 }}
