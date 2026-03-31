@@ -64,17 +64,12 @@ export default function BoardPage() {
   };
 
   const handleToggleMyTickets = () => {
-    if (myTickets) {
-      navigate('/board');
-    } else {
-      navigate('/board?my=1');
-    }
+    navigate(myTickets ? '/board' : '/board?my=1');
   };
 
   const handleDragEnd = async (result) => {
     const { draggableId, destination, source } = result;
-    if (!destination) return;
-    if (destination.droppableId === source.droppableId) return;
+    if (!destination || destination.droppableId === source.droppableId) return;
 
     const ticketId = parseInt(draggableId, 10);
     const newStatus = destination.droppableId;
@@ -101,19 +96,10 @@ export default function BoardPage() {
 
   return (
     <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
-      {/* Toolbar - RTL: controls flow right to left naturally */}
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          mb: 3,
-          gap: 1.5,
-          flexWrap: 'wrap',
-        }}
-      >
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, gap: 1.5, flexWrap: 'wrap' }}>
         <Button
           variant="contained"
-          endIcon={<AddIcon />}
+          startIcon={<AddIcon />}
           onClick={() => setShowNewTicket(true)}
           sx={{ px: 3 }}
         >
@@ -125,15 +111,10 @@ export default function BoardPage() {
           selected={myTickets}
           onChange={handleToggleMyTickets}
           size="small"
-          sx={{
-            textTransform: 'none',
-            px: 2,
-            gap: 0.5,
-            borderColor: myTickets ? 'primary.main' : undefined,
-          }}
+          sx={{ textTransform: 'none', px: 2, gap: 0.5, borderColor: myTickets ? 'primary.main' : undefined }}
         >
-          התקלות שלי
           <PersonIcon fontSize="small" />
+          התקלות שלי
         </ToggleButton>
 
         <TextField

@@ -24,7 +24,7 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import EditIcon from '@mui/icons-material/Edit';
 import LockIcon from '@mui/icons-material/Lock';
 
@@ -178,7 +178,7 @@ export default function TicketDetailPage() {
   return (
     <Box sx={{ maxWidth: 1100, mx: 'auto' }}>
       <Button
-        endIcon={<ArrowBackIcon />}
+        startIcon={<ArrowForwardIcon />}
         onClick={() => navigate('/board')}
         sx={{ mb: 2, color: 'text.secondary' }}
       >
@@ -276,7 +276,7 @@ export default function TicketDetailPage() {
                 </Typography>
               )}
               {canEdit && (
-                <Button size="small" endIcon={<EditIcon />} onClick={handleStartEditing} sx={{ mb: 1 }}>
+                <Button size="small" startIcon={<EditIcon />} onClick={handleStartEditing} sx={{ mb: 1 }}>
                   עריכה
                 </Button>
               )}
@@ -330,7 +330,7 @@ export default function TicketDetailPage() {
               <Button
                 variant="outlined"
                 color="error"
-                endIcon={<LockIcon />}
+                startIcon={<LockIcon />}
                 onClick={handleClose}
               >
                 סגירת תקלה

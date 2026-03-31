@@ -29,12 +29,10 @@ export default function Navbar() {
       }}
     >
       <Toolbar>
-        {/* Right: Logo */}
         <Typography variant="h5" sx={{ fontWeight: 700, color: '#0073ea' }}>
           Tuesday
         </Typography>
 
-        {/* Center: Achievement */}
         <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
           {user && (
             <Tooltip title="תקלות שנסגרו">
@@ -54,14 +52,11 @@ export default function Navbar() {
           )}
         </Box>
 
-        {/* Left: User */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
             {user?.full_name}
           </Typography>
-          <Avatar
-            sx={{ width: 34, height: 34, bgcolor: '#0073ea', fontSize: '0.85rem' }}
-          >
+          <Avatar sx={{ width: 34, height: 34, bgcolor: '#0073ea', fontSize: '0.85rem' }}>
             {getInitials(user?.full_name)}
           </Avatar>
           <Tooltip title="התנתקות">

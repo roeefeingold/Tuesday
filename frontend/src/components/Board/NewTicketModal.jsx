@@ -110,12 +110,12 @@ export default function NewTicketModal({ isOpen, onClose, onCreated }) {
           </Box>
         </DialogContent>
 
-        <DialogActions sx={{ px: 3, pb: 2.5, justifyContent: 'flex-start' }}>
-          <Button type="submit" variant="contained" disabled={submitting}>
-            {submitting ? 'יוצר...' : 'יצירה'}
-          </Button>
+        <DialogActions sx={{ px: 3, pb: 2.5 }}>
           <Button onClick={onClose} color="inherit">
             ביטול
+          </Button>
+          <Button type="submit" variant="contained" disabled={submitting}>
+            {submitting ? 'יוצר...' : 'יצירה'}
           </Button>
         </DialogActions>
       </form>

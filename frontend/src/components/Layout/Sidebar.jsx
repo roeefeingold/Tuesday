@@ -22,15 +22,12 @@ export default function Sidebar({ width }) {
   return (
     <Drawer
       variant="permanent"
-      anchor="right"
       sx={{
         width,
         flexShrink: 0,
         '& .MuiDrawer-paper': {
           width,
           boxSizing: 'border-box',
-          borderLeft: '1px solid #e0e0e0',
-          borderRight: 'none',
           backgroundColor: '#fff',
         },
       }}
