@@ -2,7 +2,7 @@ from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import select, func
+from sqlalchemy import select, func, case
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -97,7 +97,7 @@ async def list_tickets(
         query = query.where(Ticket.title.ilike(f"%{search}%"))
 
     # Order by priority (critical first), then by creation date (oldest first)
-    priority_order = func.case(
+    priority_order = case(
         (Ticket.priority == "critical", 1),
         (Ticket.priority == "high", 2),
         (Ticket.priority == "medium", 3),
