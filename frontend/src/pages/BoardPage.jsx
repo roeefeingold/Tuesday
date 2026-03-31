@@ -8,7 +8,6 @@ import { get, patch } from '../api/client';
 import { DragDropContext } from '@hello-pangea/dnd';
 import {
   Box,
-  Typography,
   TextField,
   MenuItem,
   Button,
@@ -82,20 +81,17 @@ export default function BoardPage() {
     const ticket = tickets.find((t) => t.id === ticketId);
     if (!ticket) return;
 
-    // Optimistic update
     setTickets((prev) =>
       prev.map((t) => (t.id === ticketId ? { ...t, status: newStatus } : t))
     );
 
     try {
-      // Auto-assign if moving to in_process and no assignee
       if (newStatus === 'in_process' && !ticket.assignee_id) {
         await patch(`/tickets/${ticketId}/assign`, { assignee_id: user.id });
       }
       await patch(`/tickets/${ticketId}/status`, { status: newStatus });
       await fetchTickets();
     } catch (err) {
-      // Revert on error
       setTickets((prev) =>
         prev.map((t) => (t.id === ticketId ? { ...t, status: source.droppableId } : t))
       );
@@ -105,80 +101,73 @@ export default function BoardPage() {
 
   return (
     <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
-      {/* Toolbar - RTL: title on right, controls on left */}
+      {/* Toolbar - RTL: controls flow right to left naturally */}
       <Box
         sx={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
           mb: 3,
+          gap: 1.5,
           flexWrap: 'wrap',
-          gap: 2,
-          flexDirection: 'row-reverse',
         }}
       >
-        <Typography variant="h5" sx={{ fontWeight: 700 }}>
-          לוח תקלות
-        </Typography>
+        <Button
+          variant="contained"
+          endIcon={<AddIcon />}
+          onClick={() => setShowNewTicket(true)}
+          sx={{ px: 3 }}
+        >
+          תקלה חדשה
+        </Button>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setShowNewTicket(true)}
-            sx={{ px: 3 }}
-          >
-            תקלה חדשה
-          </Button>
+        <ToggleButton
+          value="my"
+          selected={myTickets}
+          onChange={handleToggleMyTickets}
+          size="small"
+          sx={{
+            textTransform: 'none',
+            px: 2,
+            gap: 0.5,
+            borderColor: myTickets ? 'primary.main' : undefined,
+          }}
+        >
+          התקלות שלי
+          <PersonIcon fontSize="small" />
+        </ToggleButton>
 
-          <ToggleButton
-            value="my"
-            selected={myTickets}
-            onChange={handleToggleMyTickets}
-            size="small"
-            sx={{
-              textTransform: 'none',
-              px: 2,
-              borderColor: myTickets ? 'primary.main' : undefined,
-            }}
-          >
-            <PersonIcon fontSize="small" sx={{ ml: 0.5 }} />
-            התקלות שלי
-          </ToggleButton>
+        <TextField
+          select
+          size="small"
+          value={filterPriority}
+          onChange={(e) => setFilterPriority(e.target.value)}
+          sx={{ minWidth: 140 }}
+        >
+          <MenuItem value="">כל העדיפויות</MenuItem>
+          {PRIORITIES.map((p) => (
+            <MenuItem key={p.value} value={p.value}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: p.color }} />
+                {p.label}
+              </Box>
+            </MenuItem>
+          ))}
+        </TextField>
 
-          <TextField
-            select
-            size="small"
-            value={filterPriority}
-            onChange={(e) => setFilterPriority(e.target.value)}
-            sx={{ minWidth: 140 }}
-          >
-            <MenuItem value="">כל העדיפויות</MenuItem>
-            {PRIORITIES.map((p) => (
-              <MenuItem key={p.value} value={p.value}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Box sx={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: p.color }} />
-                  {p.label}
-                </Box>
-              </MenuItem>
-            ))}
-          </TextField>
-
-          <TextField
-            size="small"
-            placeholder="חיפוש תקלות..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" sx={{ color: 'text.secondary' }} />
-                </InputAdornment>
-              ),
-            }}
-            sx={{ minWidth: 200 }}
-          />
-        </Box>
+        <TextField
+          size="small"
+          placeholder="חיפוש..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+              </InputAdornment>
+            ),
+          }}
+          sx={{ minWidth: 180 }}
+        />
       </Box>
 
       {loading ? (
@@ -193,7 +182,6 @@ export default function BoardPage() {
               gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' },
               gap: 2.5,
               alignItems: 'start',
-              direction: 'rtl',
             }}
           >
             {grouped.map((col) => (

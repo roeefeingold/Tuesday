@@ -28,12 +28,14 @@ export default function Navbar() {
         zIndex: (theme) => theme.zIndex.drawer + 1,
       }}
     >
-      <Toolbar sx={{ flexDirection: 'row-reverse', justifyContent: 'space-between' }}>
-        {/* Right side (RTL: logo) */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Typography variant="h5" sx={{ fontWeight: 700, color: '#0073ea' }}>
-            Tuesday
-          </Typography>
+      <Toolbar>
+        {/* Right: Logo */}
+        <Typography variant="h5" sx={{ fontWeight: 700, color: '#0073ea' }}>
+          Tuesday
+        </Typography>
+
+        {/* Center: Achievement */}
+        <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
           {user && (
             <Tooltip title="תקלות שנסגרו">
               <Chip
@@ -52,26 +54,21 @@ export default function Navbar() {
           )}
         </Box>
 
-        {/* Left side (RTL: user info) */}
+        {/* Left: User */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            {user?.full_name}
+          </Typography>
+          <Avatar
+            sx={{ width: 34, height: 34, bgcolor: '#0073ea', fontSize: '0.85rem' }}
+          >
+            {getInitials(user?.full_name)}
+          </Avatar>
           <Tooltip title="התנתקות">
             <IconButton onClick={logout} size="small" sx={{ color: 'text.secondary' }}>
               <LogoutIcon fontSize="small" />
             </IconButton>
           </Tooltip>
-          <Avatar
-            sx={{
-              width: 34,
-              height: 34,
-              bgcolor: '#0073ea',
-              fontSize: '0.85rem',
-            }}
-          >
-            {getInitials(user?.full_name)}
-          </Avatar>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            {user?.full_name}
-          </Typography>
         </Box>
       </Toolbar>
     </AppBar>

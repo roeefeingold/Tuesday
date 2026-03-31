@@ -24,7 +24,7 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
 import LockIcon from '@mui/icons-material/Lock';
 
@@ -178,7 +178,7 @@ export default function TicketDetailPage() {
   return (
     <Box sx={{ maxWidth: 1100, mx: 'auto' }}>
       <Button
-        startIcon={<ArrowForwardIcon />}
+        endIcon={<ArrowBackIcon />}
         onClick={() => navigate('/board')}
         sx={{ mb: 2, color: 'text.secondary' }}
       >
@@ -215,7 +215,7 @@ export default function TicketDetailPage() {
             />
             <Typography
               variant="body2"
-              sx={{ mr: 'auto', color: ageColor, fontWeight: days >= 5 ? 600 : 400 }}
+              sx={{ color: ageColor, fontWeight: days >= 5 ? 600 : 400 }}
             >
               פתוח {ageLabel}
             </Typography>
@@ -253,7 +253,7 @@ export default function TicketDetailPage() {
                   </MenuItem>
                 ))}
               </TextField>
-              <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-start' }}>
+              <Box sx={{ display: 'flex', gap: 1 }}>
                 <Button variant="contained" onClick={handleSaveEdit} disabled={saving}>
                   {saving ? 'שומר...' : 'שמירה'}
                 </Button>
@@ -276,7 +276,7 @@ export default function TicketDetailPage() {
                 </Typography>
               )}
               {canEdit && (
-                <Button size="small" startIcon={<EditIcon />} onClick={handleStartEditing} sx={{ mb: 1 }}>
+                <Button size="small" endIcon={<EditIcon />} onClick={handleStartEditing} sx={{ mb: 1 }}>
                   עריכה
                 </Button>
               )}
@@ -330,7 +330,7 @@ export default function TicketDetailPage() {
               <Button
                 variant="outlined"
                 color="error"
-                startIcon={<LockIcon />}
+                endIcon={<LockIcon />}
                 onClick={handleClose}
               >
                 סגירת תקלה
@@ -368,7 +368,7 @@ export default function TicketDetailPage() {
 
           {comments.length === 0 ? (
             <Typography variant="body2" sx={{ color: 'text.secondary', textAlign: 'center', py: 2 }}>
-              אין תגובות עדיין. היה הראשון להגיב.
+              אין תגובות עדיין
             </Typography>
           ) : (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
