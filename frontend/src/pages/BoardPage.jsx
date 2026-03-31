@@ -95,7 +95,7 @@ export default function BoardPage() {
   };
 
   return (
-    <Box dir="rtl" sx={{ maxWidth: 1400, mx: 'auto' }}>
+    <Box dir="rtl">
       <Box dir="rtl" sx={{ display: 'flex', alignItems: 'center', mb: 3, gap: 1.5, flexWrap: 'wrap' }}>
         <Button
           variant="contained"
@@ -122,6 +122,7 @@ export default function BoardPage() {
           size="small"
           value={filterPriority}
           onChange={(e) => setFilterPriority(e.target.value)}
+          label="עדיפות"
           sx={{ minWidth: 140 }}
         >
           <MenuItem value="">כל העדיפויות</MenuItem>

@@ -6,6 +6,7 @@ import RegisterPage from './pages/RegisterPage';
 import BoardPage from './pages/BoardPage';
 import TicketDetailPage from './pages/TicketDetailPage';
 import AdminPage from './pages/AdminPage';
+import ClosedTicketsPage from './pages/ClosedTicketsPage';
 import { Box, CircularProgress } from '@mui/material';
 
 function ProtectedRoute({ children, adminOnly = false }) {
@@ -48,6 +49,7 @@ export default function App() {
         <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
         <Route path="/board" element={<ProtectedRoute><BoardPage /></ProtectedRoute>} />
         <Route path="/ticket/:id" element={<ProtectedRoute><TicketDetailPage /></ProtectedRoute>} />
+        <Route path="/closed" element={<ProtectedRoute><ClosedTicketsPage /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute adminOnly><AdminPage /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/board" replace />} />
       </Routes>
