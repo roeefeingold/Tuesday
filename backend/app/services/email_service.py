@@ -1,5 +1,6 @@
 import asyncio
 import smtplib
+import ssl
 from datetime import datetime, timezone, timedelta
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -22,18 +23,32 @@ def _send_email_sync(
     recipient_email: str,
     subject: str,
     body_html: str,
+    use_tls: bool = True,
+    use_ssl: bool = False,
 ) -> None:
-    """Send an email synchronously via SMTP."""
+    """Send an email synchronously via SMTP with TLS/SSL support."""
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
     msg["From"] = sender_email
     msg["To"] = recipient_email
     msg.attach(MIMEText(body_html, "html", "utf-8"))
 
-    with smtplib.SMTP(smtp_host, smtp_port, timeout=30) as server:
-        server.starttls()
-        server.login(smtp_user, smtp_password)
-        server.sendmail(sender_email, recipient_email, msg.as_string())
+    context = ssl.create_default_context()
+
+    if use_ssl:
+        # Direct SSL connection (port 465 typically)
+        with smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=30, context=context) as server:
+            server.login(smtp_user, smtp_password)
+            server.sendmail(sender_email, recipient_email, msg.as_string())
+    else:
+        # STARTTLS (port 587 typically - Microsoft 365 uses this)
+        with smtplib.SMTP(smtp_host, smtp_port, timeout=30) as server:
+            server.ehlo()
+            if use_tls:
+                server.starttls(context=context)
+                server.ehlo()
+            server.login(smtp_user, smtp_password)
+            server.sendmail(sender_email, recipient_email, msg.as_string())
 
 
 async def send_email(
@@ -45,6 +60,8 @@ async def send_email(
     recipient_email: str,
     subject: str,
     body_html: str,
+    use_tls: bool = True,
+    use_ssl: bool = False,
 ) -> None:
     """Send an email asynchronously by running smtplib in an executor."""
     loop = asyncio.get_event_loop()
@@ -60,6 +77,8 @@ async def send_email(
             recipient_email,
             subject,
             body_html,
+            use_tls,
+            use_ssl,
         ),
     )
 
@@ -83,6 +102,8 @@ async def send_test_email(config: EmailConfig, recipient_email: str) -> None:
         recipient_email=recipient_email,
         subject=subject,
         body_html=body_html,
+        use_tls=config.use_tls,
+        use_ssl=config.use_ssl,
     )
 
 
@@ -116,8 +137,8 @@ def _build_overdue_email_body(tickets: list[Ticket]) -> str:
 
     body = f"""
     <div dir="rtl" style="font-family: Arial, sans-serif;">
-        <h2>התראה: קריאות פתוחות מעל 5 ימים</h2>
-        <p>להלן רשימת הקריאות שפתוחות מעל 5 ימים ודורשות טיפול:</p>
+        <h2>התראה: תקלות פתוחות מעל 5 ימים</h2>
+        <p>להלן רשימת התקלות שפתוחות מעל 5 ימים ודורשות טיפול:</p>
         <table style="border-collapse: collapse; width: 100%;">
             <thead>
                 <tr style="background-color: #f2f2f2;">
@@ -132,7 +153,7 @@ def _build_overdue_email_body(tickets: list[Ticket]) -> str:
                 {rows}
             </tbody>
         </table>
-        <p>סה"כ קריאות פתוחות מעל 5 ימים: {len(tickets)}</p>
+        <p>סה"כ תקלות פתוחות מעל 5 ימים: {len(tickets)}</p>
         <br>
         <p>הודעה זו נשלחה אוטומטית ממערכת Tuesday.</p>
     </div>
@@ -142,18 +163,15 @@ def _build_overdue_email_body(tickets: list[Ticket]) -> str:
 
 async def send_overdue_alerts(db: AsyncSession) -> dict:
     """Send alert emails to all active users about tickets open more than 5 days."""
-    # Get email config
     result = await db.execute(select(EmailConfig).order_by(EmailConfig.id.desc()).limit(1))
     config = result.scalar_one_or_none()
     if not config or not config.is_enabled:
         return {"status": "error", "detail": "Email configuration not found or not enabled"}
 
-    # Get overdue tickets
     tickets = await get_overdue_tickets(db)
     if not tickets:
         return {"status": "ok", "detail": "No overdue tickets found", "emails_sent": 0}
 
-    # Get all active approved users
     users_result = await db.execute(
         select(User).where(User.is_active == True, User.is_approved == True)
     )
@@ -162,7 +180,7 @@ async def send_overdue_alerts(db: AsyncSession) -> dict:
     if not users:
         return {"status": "ok", "detail": "No active users to notify", "emails_sent": 0}
 
-    subject = f"Tuesday - התראה: {len(tickets)} קריאות פתוחות מעל 5 ימים"
+    subject = f"Tuesday - התראה: {len(tickets)} תקלות פתוחות מעל 5 ימים"
     body = _build_overdue_email_body(tickets)
 
     sent_count = 0
@@ -178,6 +196,8 @@ async def send_overdue_alerts(db: AsyncSession) -> dict:
                 recipient_email=user.email,
                 subject=subject,
                 body_html=body,
+                use_tls=config.use_tls,
+                use_ssl=config.use_ssl,
             )
             sent_count += 1
         except Exception as e:
