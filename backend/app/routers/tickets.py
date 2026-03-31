@@ -41,7 +41,6 @@ def _ticket_to_out(ticket: Ticket) -> TicketOut:
         description=ticket.description,
         status=ticket.status,
         priority=ticket.priority,
-        category=ticket.category,
         reporter_id=ticket.reporter_id,
         reporter_name=ticket.reporter.full_name if ticket.reporter else "Unknown",
         assignee_id=ticket.assignee_id,
@@ -79,7 +78,6 @@ async def list_tickets(
     status_filter: Optional[str] = Query(None, alias="status"),
     assignee_id: Optional[UUID] = Query(None),
     priority: Optional[str] = Query(None),
-    category: Optional[str] = Query(None),
     search: Optional[str] = Query(None),
     db: AsyncSession = Depends(get_db),
     _current_user: User = Depends(get_current_user),
@@ -92,8 +90,6 @@ async def list_tickets(
         query = query.where(Ticket.assignee_id == assignee_id)
     if priority:
         query = query.where(Ticket.priority == priority)
-    if category:
-        query = query.where(Ticket.category == category)
     if search:
         query = query.where(Ticket.title.ilike(f"%{search}%"))
 
@@ -114,7 +110,6 @@ async def create_ticket(
         title=ticket_in.title,
         description=ticket_in.description,
         priority=ticket_in.priority,
-        category=ticket_in.category,
         reporter_id=current_user.id,
         assignee_id=ticket_in.assignee_id,
     )
@@ -156,6 +151,35 @@ async def update_ticket(
     await db.flush()
     await db.refresh(ticket)
     return _ticket_to_out(ticket)
+
+
+@router.delete("/{ticket_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_ticket(
+    ticket_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    result = await db.execute(select(Ticket).where(Ticket.id == ticket_id))
+    ticket = result.scalar_one_or_none()
+    if not ticket:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ticket not found")
+
+    if ticket.status != "solved":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Ticket must be in 'solved' status to be deleted",
+        )
+
+    is_reporter = ticket.reporter_id == current_user.id
+    is_admin = current_user.role == "admin"
+    if not is_reporter and not is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the ticket reporter or an admin can delete this ticket",
+        )
+
+    await db.delete(ticket)
+    await db.flush()
 
 
 @router.patch("/{ticket_id}/status", response_model=TicketOut)

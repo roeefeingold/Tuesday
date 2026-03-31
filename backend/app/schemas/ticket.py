@@ -9,7 +9,6 @@ class TicketCreate(BaseModel):
     title: str
     description: Optional[str] = None
     priority: str = "medium"
-    category: str = "bug"
     assignee_id: Optional[UUID] = None
 
 
@@ -17,7 +16,6 @@ class TicketUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
     priority: Optional[str] = None
-    category: Optional[str] = None
     assignee_id: Optional[UUID] = None
 
 
@@ -54,7 +52,6 @@ class TicketOut(BaseModel):
     description: Optional[str] = None
     status: str
     priority: str
-    category: str
     reporter_id: UUID
     reporter_name: str
     assignee_id: Optional[UUID] = None

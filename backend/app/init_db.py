@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.database import Base
-from app.models import User, Ticket, TicketComment  # noqa: F401 - ensure models registered
+from app.models import User, Ticket, TicketComment, EmailConfig  # noqa: F401 - ensure models registered
 from app.services.auth import hash_password
 
 

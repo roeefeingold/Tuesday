@@ -1,31 +1,35 @@
 import { useState, useEffect } from 'react';
-import Modal from '../common/Modal';
-import Button from '../common/Button';
-import Select from '../common/Select';
-import { PRIORITIES, CATEGORIES } from '../../utils/constants';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+  MenuItem,
+  Alert,
+  Box,
+} from '@mui/material';
+import { PRIORITIES } from '../../utils/constants';
 import { get, post } from '../../api/client';
-import './NewTicketModal.css';
 
 export default function NewTicketModal({ isOpen, onClose, onCreated }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('medium');
-  const [category, setCategory] = useState('task');
   const [assigneeId, setAssigneeId] = useState('');
-  const [developers, setDevelopers] = useState([]);
+  const [activeUsers, setActiveUsers] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (isOpen) {
-      get('/users/developers')
-        .then((res) => setDevelopers(res.data))
+      get('/users/active')
+        .then((res) => setActiveUsers(res.data))
         .catch(() => {});
-      // Reset form
       setTitle('');
       setDescription('');
       setPriority('medium');
-      setCategory('task');
       setAssigneeId('');
       setError('');
     }
@@ -34,7 +38,7 @@ export default function NewTicketModal({ isOpen, onClose, onCreated }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title.trim()) {
-      setError('Title is required');
+      setError('\u05DB\u05D5\u05EA\u05E8\u05EA \u05D4\u05D9\u05D0 \u05E9\u05D3\u05D4 \u05D7\u05D5\u05D1\u05D4');
       return;
     }
     setSubmitting(true);
@@ -44,7 +48,6 @@ export default function NewTicketModal({ isOpen, onClose, onCreated }) {
         title: title.trim(),
         description: description.trim(),
         priority,
-        category,
       };
       if (assigneeId) {
         payload.assignee_id = assigneeId;
@@ -53,77 +56,91 @@ export default function NewTicketModal({ isOpen, onClose, onCreated }) {
       onCreated();
       onClose();
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to create ticket');
+      setError(err.response?.data?.detail || '\u05E0\u05DB\u05E9\u05DC \u05D1\u05D9\u05E6\u05D9\u05E8\u05EA \u05D4\u05E7\u05E8\u05D9\u05D0\u05D4');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const devOptions = developers.map((d) => ({
-    value: String(d.id),
-    label: d.full_name,
-  }));
-
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Create New Ticket" size="md">
-      <form className="new-ticket-form" onSubmit={handleSubmit}>
-        {error && <div className="new-ticket-error">{error}</div>}
+    <Dialog open={isOpen} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle sx={{ fontWeight: 600 }}>
+        {'\u05E7\u05E8\u05D9\u05D0\u05D4 \u05D7\u05D3\u05E9\u05D4'}
+      </DialogTitle>
+      <form onSubmit={handleSubmit}>
+        <DialogContent>
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
 
-        <div className="form-group">
-          <label className="form-label">Title *</label>
-          <input
-            type="text"
-            className="form-input"
-            placeholder="What needs to be done?"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            autoFocus
-          />
-        </div>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <TextField
+              label={'\u05DB\u05D5\u05EA\u05E8\u05EA'}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              fullWidth
+              autoFocus
+              placeholder={'\u05DE\u05D4 \u05E6\u05E8\u05D9\u05DA \u05DC\u05D8\u05E4\u05DC?'}
+            />
 
-        <div className="form-group">
-          <label className="form-label">Description</label>
-          <textarea
-            className="form-textarea"
-            placeholder="Add more details..."
-            rows={4}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </div>
+            <TextField
+              label={'\u05EA\u05D9\u05D0\u05D5\u05E8'}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              multiline
+              rows={4}
+              fullWidth
+              placeholder={'\u05E4\u05E8\u05D8\u05D9\u05DD \u05E0\u05D5\u05E1\u05E4\u05D9\u05DD...'}
+            />
 
-        <div className="form-row">
-          <Select
-            label="Priority"
-            value={priority}
-            onChange={setPriority}
-            options={PRIORITIES}
-          />
-          <Select
-            label="Category"
-            value={category}
-            onChange={setCategory}
-            options={CATEGORIES}
-          />
-        </div>
+            <TextField
+              select
+              label={'\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA'}
+              value={priority}
+              onChange={(e) => setPriority(e.target.value)}
+              fullWidth
+            >
+              {PRIORITIES.map((p) => (
+                <MenuItem key={p.value} value={p.value}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: p.color }} />
+                    {p.label}
+                  </Box>
+                </MenuItem>
+              ))}
+            </TextField>
 
-        <Select
-          label="Assignee"
-          value={assigneeId}
-          onChange={setAssigneeId}
-          options={devOptions}
-          placeholder="Unassigned"
-        />
+            <TextField
+              select
+              label={'\u05E9\u05D9\u05D5\u05DA \u05DC\u05DE\u05E9\u05EA\u05DE\u05E9'}
+              value={assigneeId}
+              onChange={(e) => setAssigneeId(e.target.value)}
+              fullWidth
+            >
+              <MenuItem value="">
+                <em>{'\u05DC\u05DC\u05D0 \u05E9\u05D9\u05D5\u05DA'}</em>
+              </MenuItem>
+              {activeUsers.map((u) => (
+                <MenuItem key={u.id} value={String(u.id)}>
+                  {u.full_name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Box>
+        </DialogContent>
 
-        <div className="form-actions">
-          <Button variant="ghost" onClick={onClose}>
-            Cancel
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button onClick={onClose} color="inherit">
+            {'\u05D1\u05D9\u05D8\u05D5\u05DC'}
           </Button>
-          <Button type="submit" variant="primary" disabled={submitting}>
-            {submitting ? 'Creating...' : 'Create Ticket'}
+          <Button type="submit" variant="contained" disabled={submitting}>
+            {submitting ? '\u05D9\u05D5\u05E6\u05E8...' : '\u05D9\u05E6\u05D9\u05E8\u05D4'}
           </Button>
-        </div>
+        </DialogActions>
       </form>
-    </Modal>
+    </Dialog>
   );
 }

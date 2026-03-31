@@ -1,15 +1,34 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import Badge from '../components/common/Badge';
-import Avatar from '../components/common/Avatar';
-import Button from '../components/common/Button';
-import Select from '../components/common/Select';
-import Spinner from '../components/common/Spinner';
-import { getStatusInfo, getPriorityInfo, timeAgo } from '../utils/helpers';
+import {
+  getStatusInfo,
+  getPriorityInfo,
+  timeAgo,
+  getInitials,
+  getTicketAge,
+  getAgeEmoji,
+  getAgeLabel,
+} from '../utils/helpers';
 import { PRIORITIES } from '../utils/constants';
-import { get, patch, post } from '../api/client';
-import './TicketDetailPage.css';
+import { get, patch, post, del } from '../api/client';
+import {
+  Box,
+  Paper,
+  Typography,
+  Button,
+  Chip,
+  Avatar,
+  TextField,
+  MenuItem,
+  Divider,
+  CircularProgress,
+  IconButton,
+  Alert,
+} from '@mui/material';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function TicketDetailPage() {
   const { id } = useParams();
@@ -26,7 +45,8 @@ export default function TicketDetailPage() {
   const [editPriority, setEditPriority] = useState('');
   const [saving, setSaving] = useState(false);
   const [statusLoading, setStatusLoading] = useState(false);
-  const [developers, setDevelopers] = useState([]);
+  const [activeUsers, setActiveUsers] = useState([]);
+  const [deleteError, setDeleteError] = useState('');
 
   const fetchTicket = useCallback(async () => {
     try {
@@ -41,22 +61,21 @@ export default function TicketDetailPage() {
 
   useEffect(() => {
     fetchTicket();
-    get('/users/developers')
-      .then((res) => setDevelopers(res.data))
+    get('/users/active')
+      .then((res) => setActiveUsers(res.data))
       .catch(() => {});
   }, [fetchTicket]);
 
   const handleStatusChange = async (newStatus) => {
     setStatusLoading(true);
     try {
-      // If moving to in_process and no assignee, auto-assign current user
       if (newStatus === 'in_process' && !ticket.assignee_id) {
         await patch(`/tickets/${id}/assign`, { assignee_id: user.id });
       }
       await patch(`/tickets/${id}/status`, { status: newStatus });
       await fetchTicket();
     } catch (err) {
-      alert(err.response?.data?.detail || 'Failed to update status');
+      alert(err.response?.data?.detail || '\u05E0\u05DB\u05E9\u05DC \u05D1\u05E2\u05D3\u05DB\u05D5\u05DF \u05D4\u05E1\u05D8\u05D8\u05D5\u05E1');
     } finally {
       setStatusLoading(false);
     }
@@ -67,7 +86,7 @@ export default function TicketDetailPage() {
       await patch(`/tickets/${id}/assign`, { assignee_id: assigneeId || null });
       await fetchTicket();
     } catch (err) {
-      alert(err.response?.data?.detail || 'Failed to assign');
+      alert(err.response?.data?.detail || '\u05E0\u05DB\u05E9\u05DC \u05D1\u05E9\u05D9\u05D5\u05DA');
     }
   };
 
@@ -89,7 +108,7 @@ export default function TicketDetailPage() {
       setEditing(false);
       await fetchTicket();
     } catch (err) {
-      alert(err.response?.data?.detail || 'Failed to update ticket');
+      alert(err.response?.data?.detail || '\u05E0\u05DB\u05E9\u05DC \u05D1\u05E2\u05D3\u05DB\u05D5\u05DF');
     } finally {
       setSaving(false);
     }
@@ -104,233 +123,349 @@ export default function TicketDetailPage() {
       setCommentText('');
       await fetchTicket();
     } catch (err) {
-      alert(err.response?.data?.detail || 'Failed to add comment');
+      alert(err.response?.data?.detail || '\u05E0\u05DB\u05E9\u05DC \u05D1\u05D4\u05D5\u05E1\u05E4\u05EA \u05EA\u05D2\u05D5\u05D1\u05D4');
     } finally {
       setSubmittingComment(false);
     }
   };
 
-  if (loading) return <div className="ticket-detail-loading"><Spinner size={40} /></div>;
+  const handleDelete = async () => {
+    if (!window.confirm('\u05D4\u05D0\u05DD \u05D0\u05EA\u05D4 \u05D1\u05D8\u05D5\u05D7 \u05E9\u05D1\u05E8\u05E6\u05D5\u05E0\u05DA \u05DC\u05DE\u05D7\u05D5\u05E7 \u05E7\u05E8\u05D9\u05D0\u05D4 \u05D6\u05D5?')) return;
+    setDeleteError('');
+    try {
+      await del(`/tickets/${id}`);
+      navigate('/board');
+    } catch (err) {
+      setDeleteError(err.response?.data?.detail || '\u05E0\u05DB\u05E9\u05DC \u05D1\u05DE\u05D7\u05D9\u05E7\u05EA \u05D4\u05E7\u05E8\u05D9\u05D0\u05D4');
+    }
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   if (!ticket) {
     return (
-      <div className="ticket-detail-empty">
-        <h2>Ticket not found</h2>
-        <Button variant="ghost" onClick={() => navigate('/board')}>Back to Board</Button>
-      </div>
+      <Box sx={{ textAlign: 'center', py: 8 }}>
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          {'\u05D4\u05E7\u05E8\u05D9\u05D0\u05D4 \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D4'}
+        </Typography>
+        <Button variant="outlined" onClick={() => navigate('/board')}>
+          {'\u05D7\u05D6\u05E8\u05D4 \u05DC\u05DC\u05D5\u05D7'}
+        </Button>
+      </Box>
     );
   }
 
   const statusInfo = getStatusInfo(ticket.status);
   const priorityInfo = getPriorityInfo(ticket.priority);
-  const categoryColor = ticket.category === 'bug' ? 'var(--color-critical)' : 'var(--color-primary)';
   const canEdit = isAdmin || (ticket.assignee_id && ticket.assignee_id === user?.id);
+  const canDelete = ticket.status === 'solved' && (isAdmin || ticket.reporter_id === user?.id);
   const comments = ticket.comments || [];
-
-  const devOptions = developers.map((d) => ({
-    value: d.id,
-    label: d.full_name,
-  }));
+  const days = getTicketAge(ticket.created_at);
+  const ageEmoji = getAgeEmoji(days);
+  const ageLabel = getAgeLabel(days);
 
   return (
-    <div className="ticket-detail">
-      <button className="ticket-detail-back" onClick={() => navigate('/board')}>
-        &#8592; Back to Board
-      </button>
+    <Box>
+      <Button
+        startIcon={<ArrowForwardIcon />}
+        onClick={() => navigate('/board')}
+        sx={{ mb: 2, color: 'text.secondary' }}
+      >
+        {'\u05D7\u05D6\u05E8\u05D4 \u05DC\u05DC\u05D5\u05D7'}
+      </Button>
 
-      <div className="ticket-detail-layout">
-        <div className="ticket-detail-main">
-          <div className="ticket-detail-header">
-            <span className="ticket-detail-id">#{ticket.id}</span>
-            <div className="ticket-detail-badges">
-              <Badge label={statusInfo.label} color={statusInfo.color} />
-              <Badge label={priorityInfo.label} color={priorityInfo.color} />
-              <Badge label={ticket.category === 'bug' ? 'Bug' : 'Task'} color={categoryColor} />
-            </div>
-          </div>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', md: '1fr 300px' },
+          gap: 3,
+          alignItems: 'start',
+        }}
+      >
+        {/* Main Content */}
+        <Paper sx={{ p: 3, borderRadius: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, flexWrap: 'wrap' }}>
+            <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+              #{ticket.id}
+            </Typography>
+            <Chip
+              label={statusInfo.label}
+              size="small"
+              sx={{ backgroundColor: statusInfo.color, color: '#fff', fontWeight: 600 }}
+            />
+            <Chip
+              label={priorityInfo.label}
+              size="small"
+              sx={{ backgroundColor: priorityInfo.color, color: '#fff', fontWeight: 600 }}
+            />
+          </Box>
 
           {editing ? (
-            <div className="ticket-detail-edit-form">
-              <div className="form-group">
-                <label className="form-label">Title</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  value={editTitle}
-                  onChange={(e) => setEditTitle(e.target.value)}
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Description</label>
-                <textarea
-                  className="form-textarea"
-                  rows={5}
-                  value={editDescription}
-                  onChange={(e) => setEditDescription(e.target.value)}
-                />
-              </div>
-              <Select
-                label="Priority"
-                value={editPriority}
-                onChange={setEditPriority}
-                options={PRIORITIES}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 3 }}>
+              <TextField
+                label={'\u05DB\u05D5\u05EA\u05E8\u05EA'}
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                fullWidth
               />
-              <div className="ticket-detail-edit-actions">
-                <Button variant="ghost" onClick={() => setEditing(false)}>Cancel</Button>
-                <Button variant="primary" onClick={handleSaveEdit} disabled={saving}>
-                  {saving ? 'Saving...' : 'Save Changes'}
+              <TextField
+                label={'\u05EA\u05D9\u05D0\u05D5\u05E8'}
+                value={editDescription}
+                onChange={(e) => setEditDescription(e.target.value)}
+                multiline
+                rows={5}
+                fullWidth
+              />
+              <TextField
+                select
+                label={'\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA'}
+                value={editPriority}
+                onChange={(e) => setEditPriority(e.target.value)}
+                fullWidth
+              >
+                {PRIORITIES.map((p) => (
+                  <MenuItem key={p.value} value={p.value}>
+                    {p.label}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <Button variant="outlined" onClick={() => setEditing(false)}>
+                  {'\u05D1\u05D9\u05D8\u05D5\u05DC'}
                 </Button>
-              </div>
-            </div>
+                <Button variant="contained" onClick={handleSaveEdit} disabled={saving}>
+                  {saving ? '\u05E9\u05D5\u05DE\u05E8...' : '\u05E9\u05DE\u05D9\u05E8\u05D4'}
+                </Button>
+              </Box>
+            </Box>
           ) : (
             <>
-              <h1 className="ticket-detail-title">{ticket.title}</h1>
+              <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
+                {ticket.title}
+              </Typography>
               {ticket.description && (
-                <p className="ticket-detail-description">{ticket.description}</p>
+                <Typography variant="body1" sx={{ color: 'text.secondary', mb: 2, whiteSpace: 'pre-wrap' }}>
+                  {ticket.description}
+                </Typography>
               )}
+
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  {`\u05E4\u05EA\u05D5\u05D7 \u05DB\u05D1\u05E8 ${ageLabel} ${ageEmoji}`}
+                </Typography>
+              </Box>
+
               {canEdit && (
-                <Button variant="ghost" size="sm" onClick={handleStartEditing}>
-                  Edit
-                </Button>
+                <IconButton size="small" onClick={handleStartEditing} sx={{ mb: 1 }}>
+                  <EditIcon fontSize="small" />
+                </IconButton>
               )}
             </>
           )}
 
-          <div className="ticket-detail-status-actions">
+          <Divider sx={{ my: 2 }} />
+
+          {/* Status Actions */}
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 3 }}>
             {ticket.status === 'open' && (
               <Button
-                variant="warning"
+                variant="contained"
+                color="warning"
                 onClick={() => handleStatusChange('in_process')}
                 disabled={statusLoading}
               >
-                Start Working
+                {'\u05D4\u05EA\u05D7\u05DC \u05D8\u05D9\u05E4\u05D5\u05DC'}
               </Button>
             )}
             {ticket.status === 'in_process' && (
-              <Button
-                variant="success"
-                onClick={() => handleStatusChange('solved')}
-                disabled={statusLoading}
-              >
-                Mark as Solved
-              </Button>
-            )}
-            {ticket.status === 'in_process' && (
-              <Button
-                variant="ghost"
-                onClick={() => handleStatusChange('open')}
-                disabled={statusLoading}
-              >
-                Reopen
-              </Button>
+              <>
+                <Button
+                  variant="contained"
+                  color="success"
+                  onClick={() => handleStatusChange('solved')}
+                  disabled={statusLoading}
+                >
+                  {'\u05E1\u05DE\u05DF \u05DB\u05D8\u05D5\u05E4\u05DC'}
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={() => handleStatusChange('open')}
+                  disabled={statusLoading}
+                >
+                  {'\u05D4\u05D7\u05D6\u05E8 \u05DC\u05E4\u05EA\u05D5\u05D7'}
+                </Button>
+              </>
             )}
             {ticket.status === 'solved' && isAdmin && (
               <Button
-                variant="warning"
+                variant="outlined"
+                color="warning"
                 onClick={() => handleStatusChange('open')}
                 disabled={statusLoading}
               >
-                Reopen
+                {'\u05E4\u05EA\u05D7 \u05DE\u05D7\u05D3\u05E9'}
               </Button>
             )}
-          </div>
-
-          {/* Comments Section */}
-          <div className="ticket-detail-comments">
-            <h3 className="ticket-detail-comments-title">
-              Comments ({comments.length})
-            </h3>
-
-            <form className="ticket-detail-comment-form" onSubmit={handleAddComment}>
-              <textarea
-                className="form-textarea"
-                placeholder="Write a comment..."
-                rows={3}
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-              />
+            {canDelete && (
               <Button
-                type="submit"
-                variant="primary"
-                size="sm"
-                disabled={submittingComment || !commentText.trim()}
+                variant="outlined"
+                color="error"
+                startIcon={<DeleteIcon />}
+                onClick={handleDelete}
               >
-                {submittingComment ? 'Posting...' : 'Post Comment'}
+                {'\u05DE\u05D7\u05E7 \u05E7\u05E8\u05D9\u05D0\u05D4'}
               </Button>
-            </form>
+            )}
+          </Box>
 
-            <div className="ticket-detail-comment-list">
-              {comments.length === 0 ? (
-                <p className="ticket-detail-no-comments">No comments yet. Be the first to comment.</p>
-              ) : (
-                comments.map((comment) => (
-                  <div key={comment.id} className="ticket-comment">
-                    <Avatar name={comment.author_name || 'Unknown'} size="sm" />
-                    <div className="ticket-comment-body">
-                      <div className="ticket-comment-header">
-                        <span className="ticket-comment-author">
-                          {comment.author_name || 'Unknown'}
-                        </span>
-                        <span className="ticket-comment-time">
-                          {timeAgo(comment.created_at)}
-                        </span>
-                      </div>
-                      <p className="ticket-comment-text">{comment.body}</p>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
+          {deleteError && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {deleteError}
+            </Alert>
+          )}
+
+          <Divider sx={{ my: 2 }} />
+
+          {/* Comments */}
+          <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+            {`\u05EA\u05D2\u05D5\u05D1\u05D5\u05EA (${comments.length})`}
+          </Typography>
+
+          <Box component="form" onSubmit={handleAddComment} sx={{ mb: 3 }}>
+            <TextField
+              placeholder={'\u05DB\u05EA\u05D5\u05D1 \u05EA\u05D2\u05D5\u05D1\u05D4...'}
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              multiline
+              rows={3}
+              fullWidth
+              sx={{ mb: 1 }}
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              size="small"
+              disabled={submittingComment || !commentText.trim()}
+            >
+              {submittingComment ? '\u05E9\u05D5\u05DC\u05D7...' : '\u05E9\u05DC\u05D7'}
+            </Button>
+          </Box>
+
+          {comments.length === 0 ? (
+            <Typography variant="body2" sx={{ color: 'text.secondary', textAlign: 'center', py: 2 }}>
+              {'\u05D0\u05D9\u05DF \u05EA\u05D2\u05D5\u05D1\u05D5\u05EA \u05E2\u05D3\u05D9\u05D9\u05DF. \u05D4\u05D9\u05D5 \u05D4\u05E8\u05D0\u05E9\u05D5\u05E0\u05D9\u05DD \u05DC\u05D4\u05D2\u05D9\u05D1.'}
+            </Typography>
+          ) : (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {comments.map((comment) => (
+                <Box key={comment.id} sx={{ display: 'flex', gap: 1.5 }}>
+                  <Avatar sx={{ width: 32, height: 32, fontSize: '0.75rem', bgcolor: '#0073ea' }}>
+                    {getInitials(comment.author_name || '?')}
+                  </Avatar>
+                  <Box sx={{ flex: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        {comment.author_name || '\u05DC\u05D0 \u05D9\u05D3\u05D5\u05E2'}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                        {timeAgo(comment.created_at)}
+                      </Typography>
+                    </Box>
+                    <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                      {comment.body}
+                    </Typography>
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+          )}
+        </Paper>
 
         {/* Sidebar */}
-        <div className="ticket-detail-sidebar">
-          <div className="ticket-detail-info-card">
-            <h3>Details</h3>
+        <Paper sx={{ p: 3, borderRadius: 2 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2 }}>
+            {'\u05E4\u05E8\u05D8\u05D9\u05DD'}
+          </Typography>
 
-            <div className="ticket-detail-info-row">
-              <span className="ticket-detail-info-label">Reporter</span>
-              <div className="ticket-detail-info-value">
-                <div className="ticket-detail-person">
-                  <Avatar name={ticket.reporter_name || 'Unknown'} size="sm" />
-                  <span>{ticket.reporter_name || 'Unknown'}</span>
-                </div>
-              </div>
-            </div>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+            <Box>
+              <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                {'\u05DE\u05D3\u05D5\u05D5\u05D7'}
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                <Avatar sx={{ width: 28, height: 28, fontSize: '0.7rem', bgcolor: '#0073ea' }}>
+                  {getInitials(ticket.reporter_name || '?')}
+                </Avatar>
+                <Typography variant="body2">
+                  {ticket.reporter_name || '\u05DC\u05D0 \u05D9\u05D3\u05D5\u05E2'}
+                </Typography>
+              </Box>
+            </Box>
 
-            <div className="ticket-detail-info-row">
-              <span className="ticket-detail-info-label">Assignee</span>
-              <div className="ticket-detail-info-value">
-                {isAdmin ? (
-                  <Select
-                    value={ticket.assignee_id || ''}
-                    onChange={handleAssign}
-                    options={devOptions}
-                    placeholder="Unassigned"
-                  />
-                ) : ticket.assignee_name ? (
-                  <div className="ticket-detail-person">
-                    <Avatar name={ticket.assignee_name} size="sm" />
-                    <span>{ticket.assignee_name}</span>
-                  </div>
-                ) : (
-                  <span className="ticket-detail-info-empty">Unassigned</span>
-                )}
-              </div>
-            </div>
+            <Box>
+              <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                {'\u05DE\u05E9\u05D5\u05D9\u05DA'}
+              </Typography>
+              {isAdmin ? (
+                <TextField
+                  select
+                  size="small"
+                  value={ticket.assignee_id || ''}
+                  onChange={(e) => handleAssign(e.target.value ? Number(e.target.value) : null)}
+                  fullWidth
+                  sx={{ mt: 0.5 }}
+                >
+                  <MenuItem value="">
+                    <em>{'\u05DC\u05DC\u05D0 \u05E9\u05D9\u05D5\u05DA'}</em>
+                  </MenuItem>
+                  {activeUsers.map((u) => (
+                    <MenuItem key={u.id} value={u.id}>
+                      {u.full_name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              ) : ticket.assignee_name ? (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                  <Avatar sx={{ width: 28, height: 28, fontSize: '0.7rem', bgcolor: '#0073ea' }}>
+                    {getInitials(ticket.assignee_name)}
+                  </Avatar>
+                  <Typography variant="body2">
+                    {ticket.assignee_name}
+                  </Typography>
+                </Box>
+              ) : (
+                <Typography variant="body2" sx={{ color: 'text.disabled', mt: 0.5 }}>
+                  {'\u05DC\u05D0 \u05E9\u05D5\u05D9\u05DA'}
+                </Typography>
+              )}
+            </Box>
 
-            <div className="ticket-detail-info-row">
-              <span className="ticket-detail-info-label">Created</span>
-              <span className="ticket-detail-info-value">{timeAgo(ticket.created_at)}</span>
-            </div>
+            <Box>
+              <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                {'\u05E0\u05E4\u05EA\u05D7'}
+              </Typography>
+              <Typography variant="body2" sx={{ mt: 0.5 }}>
+                {timeAgo(ticket.created_at)}
+              </Typography>
+            </Box>
 
-            <div className="ticket-detail-info-row">
-              <span className="ticket-detail-info-label">Updated</span>
-              <span className="ticket-detail-info-value">{timeAgo(ticket.updated_at)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+            <Box>
+              <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                {'\u05E2\u05D5\u05D3\u05DB\u05DF'}
+              </Typography>
+              <Typography variant="body2" sx={{ mt: 0.5 }}>
+                {timeAgo(ticket.updated_at)}
+              </Typography>
+            </Box>
+          </Box>
+        </Paper>
+      </Box>
+    </Box>
   );
 }

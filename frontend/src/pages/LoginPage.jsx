@@ -1,8 +1,14 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import Button from '../components/common/Button';
-import './LoginPage.css';
+import {
+  Box,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  Alert,
+} from '@mui/material';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -15,7 +21,7 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email.trim() || !password) {
-      setError('Please enter your email and password');
+      setError('\u05E0\u05D0 \u05DC\u05D4\u05D6\u05D9\u05DF \u05D0\u05D9\u05DE\u05D9\u05D9\u05DC \u05D5\u05E1\u05D9\u05E1\u05DE\u05D4');
       return;
     }
     setLoading(true);
@@ -28,7 +34,7 @@ export default function LoginPage() {
       if (typeof detail === 'string') {
         setError(detail);
       } else {
-        setError('Invalid email or password');
+        setError('\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC \u05D0\u05D5 \u05E1\u05D9\u05E1\u05DE\u05D4 \u05E9\u05D2\u05D5\u05D9\u05D9\u05DD');
       }
     } finally {
       setLoading(false);
@@ -36,48 +42,81 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="login-page">
-      <div className="login-card">
-        <div className="login-header">
-          <h1 className="login-logo">Tuesday</h1>
-          <p className="login-tagline">Simple ticket management for your team</p>
-        </div>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, #667eea 0%, #0073ea 100%)',
+        p: 2,
+      }}
+    >
+      <Paper
+        elevation={8}
+        sx={{
+          p: 5,
+          maxWidth: 420,
+          width: '100%',
+          borderRadius: 3,
+          textAlign: 'center',
+        }}
+      >
+        <Typography
+          variant="h3"
+          sx={{ fontWeight: 800, color: '#0073ea', mb: 1 }}
+        >
+          Tuesday
+        </Typography>
+        <Typography variant="body1" sx={{ color: 'text.secondary', mb: 4 }}>
+          {'\u05DE\u05E2\u05E8\u05DB\u05EA \u05E0\u05D9\u05D4\u05D5\u05DC \u05E7\u05E8\u05D9\u05D0\u05D5\u05EA \u05DC\u05E6\u05D5\u05D5\u05EA'}
+        </Typography>
 
-        <form className="login-form" onSubmit={handleSubmit}>
-          {error && <div className="login-error">{error}</div>}
+        <form onSubmit={handleSubmit}>
+          {error && (
+            <Alert severity="error" sx={{ mb: 2, textAlign: 'right' }}>
+              {error}
+            </Alert>
+          )}
 
-          <div className="login-field">
-            <label className="login-label">Email</label>
-            <input
-              type="email"
-              className="login-input"
-              placeholder="you@company.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoFocus
-            />
-          </div>
+          <TextField
+            label={'\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC'}
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            fullWidth
+            sx={{ mb: 2 }}
+            autoFocus
+          />
 
-          <div className="login-field">
-            <label className="login-label">Password</label>
-            <input
-              type="password"
-              className="login-input"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
+          <TextField
+            label={'\u05E1\u05D9\u05E1\u05DE\u05D4'}
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            fullWidth
+            sx={{ mb: 3 }}
+          />
 
-          <Button type="submit" variant="primary" size="lg" fullWidth disabled={loading}>
-            {loading ? 'Signing in...' : 'Sign In'}
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            size="large"
+            disabled={loading}
+            sx={{ py: 1.3, fontSize: '1rem', mb: 2 }}
+          >
+            {loading ? '\u05DE\u05EA\u05D7\u05D1\u05E8...' : '\u05DB\u05E0\u05D9\u05E1\u05D4'}
           </Button>
         </form>
 
-        <div className="login-footer">
-          <p>Don't have an account? <Link to="/register">Create one</Link></p>
-        </div>
-      </div>
-    </div>
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          {'\u05D0\u05D9\u05DF \u05DC\u05DA \u05D7\u05E9\u05D1\u05D5\u05DF? '}
+          <Link to="/register" style={{ color: '#0073ea', textDecoration: 'none', fontWeight: 500 }}>
+            {'\u05D4\u05D9\u05E8\u05E9\u05DD \u05DB\u05D0\u05DF'}
+          </Link>
+        </Typography>
+      </Paper>
+    </Box>
   );
 }

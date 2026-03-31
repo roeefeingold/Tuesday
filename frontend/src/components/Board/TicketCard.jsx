@@ -1,31 +1,95 @@
-import Badge from '../common/Badge';
-import Avatar from '../common/Avatar';
-import { getPriorityInfo } from '../../utils/helpers';
-import { timeAgo } from '../../utils/helpers';
-import './TicketCard.css';
+import { Card, CardContent, Typography, Box, Avatar, Tooltip } from '@mui/material';
+import { getPriorityInfo, getInitials, timeAgo, getTicketAge, getAgeEmoji, getAgeLabel } from '../../utils/helpers';
 
 export default function TicketCard({ ticket, onClick }) {
   const priority = getPriorityInfo(ticket.priority);
-  const categoryColor = ticket.category === 'bug' ? 'var(--color-critical)' : 'var(--color-primary)';
+  const days = getTicketAge(ticket.created_at);
+  const ageEmoji = getAgeEmoji(days);
+  const ageLabel = getAgeLabel(days);
 
   return (
-    <div className="ticket-card" onClick={onClick}>
-      <div className="ticket-card-top">
-        <span className="ticket-card-id">#{ticket.id}</span>
-        <Badge label={ticket.category === 'bug' ? 'Bug' : 'Task'} color={categoryColor} size="sm" />
-      </div>
-      <h4 className="ticket-card-title">{ticket.title}</h4>
-      <div className="ticket-card-bottom">
-        <div className="ticket-card-meta">
-          <Badge label={priority.label} color={priority.color} size="sm" />
-          {ticket.assignee_name ? (
-            <Avatar name={ticket.assignee_name} size="sm" />
-          ) : (
-            <span className="ticket-card-unassigned">Unassigned</span>
-          )}
-        </div>
-        <span className="ticket-card-time">{timeAgo(ticket.created_at)}</span>
-      </div>
-    </div>
+    <Card
+      onClick={onClick}
+      elevation={0}
+      sx={{
+        cursor: 'pointer',
+        border: '1px solid #e6e9ef',
+        borderRadius: 1.5,
+        transition: 'all 0.15s ease',
+        backgroundColor: '#fff',
+        '&:hover': {
+          elevation: 2,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+          borderColor: '#c4c4c4',
+        },
+      }}
+    >
+      <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.75 }}>
+          <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+            #{ticket.id}
+          </Typography>
+          <Tooltip title={priority.label}>
+            <Box
+              sx={{
+                width: 10,
+                height: 10,
+                borderRadius: '50%',
+                backgroundColor: priority.color,
+                flexShrink: 0,
+              }}
+            />
+          </Tooltip>
+        </Box>
+
+        <Typography
+          variant="body2"
+          sx={{
+            fontWeight: 600,
+            mb: 1,
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            lineHeight: 1.4,
+          }}
+        >
+          {ticket.title}
+        </Typography>
+
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            {ticket.assignee_name ? (
+              <Tooltip title={ticket.assignee_name}>
+                <Avatar
+                  sx={{
+                    width: 22,
+                    height: 22,
+                    fontSize: '0.65rem',
+                    bgcolor: '#0073ea',
+                  }}
+                >
+                  {getInitials(ticket.assignee_name)}
+                </Avatar>
+              </Tooltip>
+            ) : (
+              <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: '0.7rem' }}>
+                {'\u05DC\u05D0 \u05E9\u05D5\u05D9\u05DA'}
+              </Typography>
+            )}
+          </Box>
+
+          <Tooltip title={`${'\u05E4\u05EA\u05D5\u05D7'} ${ageLabel}`}>
+            <Typography variant="caption" sx={{ fontSize: '0.85rem', cursor: 'default' }}>
+              {ageEmoji}
+            </Typography>
+          </Tooltip>
+
+          <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.7rem' }}>
+            {timeAgo(ticket.created_at)}
+          </Typography>
+        </Box>
+      </CardContent>
+    </Card>
   );
 }

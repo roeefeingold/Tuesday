@@ -27,6 +27,7 @@ client.interceptors.response.use(
 
 export const get = (url, params) => client.get(url, { params });
 export const post = (url, data, config) => client.post(url, data, config);
+export const put = (url, data) => client.put(url, data);
 export const patch = (url, data) => client.patch(url, data);
 export const del = (url) => client.delete(url);
 

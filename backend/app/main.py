@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import auth, users, tickets
+from app.routers import auth, users, tickets, email_config
 
 app = FastAPI(title="Tuesday", description="Ticket Management System", version="1.0.0")
 
@@ -16,6 +16,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(tickets.router)
+app.include_router(email_config.router)
 
 
 @app.get("/api/health")
