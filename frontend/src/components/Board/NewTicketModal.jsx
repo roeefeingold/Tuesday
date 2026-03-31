@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -11,29 +11,21 @@ import {
   Box,
 } from '@mui/material';
 import { PRIORITIES } from '../../utils/constants';
-import { get, post } from '../../api/client';
+import { post } from '../../api/client';
 
 export default function NewTicketModal({ isOpen, onClose, onCreated }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('medium');
-  const [assigneeId, setAssigneeId] = useState('');
-  const [activeUsers, setActiveUsers] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (isOpen) {
-      get('/users/active')
-        .then((res) => setActiveUsers(res.data))
-        .catch(() => {});
-      setTitle('');
-      setDescription('');
-      setPriority('medium');
-      setAssigneeId('');
-      setError('');
-    }
-  }, [isOpen]);
+  const handleOpen = () => {
+    setTitle('');
+    setDescription('');
+    setPriority('medium');
+    setError('');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -44,15 +36,11 @@ export default function NewTicketModal({ isOpen, onClose, onCreated }) {
     setSubmitting(true);
     setError('');
     try {
-      const payload = {
+      await post('/tickets', {
         title: title.trim(),
         description: description.trim(),
         priority,
-      };
-      if (assigneeId) {
-        payload.assignee_id = assigneeId;
-      }
-      await post('/tickets', payload);
+      });
       onCreated();
       onClose();
     } catch (err) {
@@ -63,7 +51,14 @@ export default function NewTicketModal({ isOpen, onClose, onCreated }) {
   };
 
   return (
-    <Dialog open={isOpen} onClose={onClose} maxWidth="sm" fullWidth dir="rtl">
+    <Dialog
+      open={isOpen}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      dir="rtl"
+      TransitionProps={{ onEnter: handleOpen }}
+    >
       <DialogTitle sx={{ fontWeight: 600, textAlign: 'right' }}>
         תקלה חדשה
       </DialogTitle>
@@ -109,23 +104,6 @@ export default function NewTicketModal({ isOpen, onClose, onCreated }) {
                     <Box sx={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: p.color }} />
                     {p.label}
                   </Box>
-                </MenuItem>
-              ))}
-            </TextField>
-
-            <TextField
-              select
-              label="שיוך למשתמש"
-              value={assigneeId}
-              onChange={(e) => setAssigneeId(e.target.value)}
-              fullWidth
-            >
-              <MenuItem value="">
-                <em>ללא שיוך</em>
-              </MenuItem>
-              {activeUsers.map((u) => (
-                <MenuItem key={u.id} value={String(u.id)}>
-                  {u.full_name}
                 </MenuItem>
               ))}
             </TextField>

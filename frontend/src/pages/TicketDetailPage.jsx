@@ -7,7 +7,6 @@ import {
   timeAgo,
   getInitials,
   getTicketAge,
-  getAgeEmoji,
   getAgeLabel,
 } from '../utils/helpers';
 import { PRIORITIES } from '../utils/constants';
@@ -27,7 +26,13 @@ import {
 } from '@mui/material';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import LockIcon from '@mui/icons-material/Lock';
+
+function getAgeColor(days) {
+  if (days < 5) return 'text.secondary';
+  if (days < 10) return '#e67e00';
+  return '#d32f2f';
+}
 
 export default function TicketDetailPage() {
   const { id } = useParams();
@@ -45,7 +50,7 @@ export default function TicketDetailPage() {
   const [saving, setSaving] = useState(false);
   const [statusLoading, setStatusLoading] = useState(false);
   const [activeUsers, setActiveUsers] = useState([]);
-  const [deleteError, setDeleteError] = useState('');
+  const [closeError, setCloseError] = useState('');
 
   const fetchTicket = useCallback(async () => {
     try {
@@ -128,14 +133,14 @@ export default function TicketDetailPage() {
     }
   };
 
-  const handleDelete = async () => {
-    if (!window.confirm('האם אתה בטוח שברצונך למחוק תקלה זו?')) return;
-    setDeleteError('');
+  const handleClose = async () => {
+    if (!window.confirm('האם אתה בטוח שברצונך לסגור תקלה זו?')) return;
+    setCloseError('');
     try {
       await del(`/tickets/${id}`);
       navigate('/board');
     } catch (err) {
-      setDeleteError(err.response?.data?.detail || 'נכשל במחיקת התקלה');
+      setCloseError(err.response?.data?.detail || 'נכשל בסגירת התקלה');
     }
   };
 
@@ -163,11 +168,12 @@ export default function TicketDetailPage() {
   const statusInfo = getStatusInfo(ticket.status);
   const priorityInfo = getPriorityInfo(ticket.priority);
   const canEdit = isAdmin || (ticket.assignee_id && ticket.assignee_id === user?.id);
-  const canDelete = ticket.status === 'solved' && (isAdmin || ticket.reporter_id === user?.id);
+  const canClose = ticket.status === 'solved' && (isAdmin || ticket.reporter_id === user?.id);
   const comments = ticket.comments || [];
   const days = getTicketAge(ticket.created_at);
-  const ageEmoji = getAgeEmoji(days);
   const ageLabel = getAgeLabel(days);
+  const ageColor = getAgeColor(days);
+  const showAssignee = ticket.status !== 'open';
 
   return (
     <Box sx={{ maxWidth: 1100, mx: 'auto' }}>
@@ -179,8 +185,8 @@ export default function TicketDetailPage() {
         חזרה ללוח
       </Button>
 
-      {deleteError && (
-        <Alert severity="error" sx={{ mb: 2 }}>{deleteError}</Alert>
+      {closeError && (
+        <Alert severity="error" sx={{ mb: 2 }}>{closeError}</Alert>
       )}
 
       <Box
@@ -207,8 +213,11 @@ export default function TicketDetailPage() {
               size="small"
               sx={{ backgroundColor: priorityInfo.color, color: '#fff', fontWeight: 600 }}
             />
-            <Typography variant="body2" sx={{ mr: 'auto' }}>
-              {ageEmoji} פתוח {ageLabel}
+            <Typography
+              variant="body2"
+              sx={{ mr: 'auto', color: ageColor, fontWeight: days >= 5 ? 600 : 400 }}
+            >
+              פתוח {ageLabel}
             </Typography>
           </Box>
 
@@ -261,23 +270,13 @@ export default function TicketDetailPage() {
               {ticket.description && (
                 <Typography
                   variant="body1"
-                  sx={{
-                    color: 'text.secondary',
-                    mb: 2,
-                    whiteSpace: 'pre-wrap',
-                    lineHeight: 1.7,
-                  }}
+                  sx={{ color: 'text.secondary', mb: 2, whiteSpace: 'pre-wrap', lineHeight: 1.7 }}
                 >
                   {ticket.description}
                 </Typography>
               )}
               {canEdit && (
-                <Button
-                  size="small"
-                  startIcon={<EditIcon />}
-                  onClick={handleStartEditing}
-                  sx={{ mb: 1 }}
-                >
+                <Button size="small" startIcon={<EditIcon />} onClick={handleStartEditing} sx={{ mb: 1 }}>
                   עריכה
                 </Button>
               )}
@@ -327,14 +326,14 @@ export default function TicketDetailPage() {
                 פתח מחדש
               </Button>
             )}
-            {canDelete && (
+            {canClose && (
               <Button
                 variant="outlined"
                 color="error"
-                startIcon={<DeleteIcon />}
-                onClick={handleDelete}
+                startIcon={<LockIcon />}
+                onClick={handleClose}
               >
-                מחק תקלה
+                סגירת תקלה
               </Button>
             )}
           </Box>
@@ -380,14 +379,7 @@ export default function TicketDetailPage() {
                   >
                     {getInitials(comment.author_name || 'Unknown')}
                   </Avatar>
-                  <Box
-                    sx={{
-                      flex: 1,
-                      backgroundColor: '#f6f7fb',
-                      borderRadius: 2,
-                      p: 2,
-                    }}
-                  >
+                  <Box sx={{ flex: 1, backgroundColor: '#f6f7fb', borderRadius: 2, p: 2 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                       <Typography variant="body2" sx={{ fontWeight: 600 }}>
                         {comment.author_name || 'Unknown'}
@@ -430,42 +422,44 @@ export default function TicketDetailPage() {
               </Box>
             </Box>
 
-            <Box>
-              <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mb: 0.5 }}>
-                משויך
-              </Typography>
-              {isAdmin ? (
-                <TextField
-                  select
-                  size="small"
-                  value={ticket.assignee_id || ''}
-                  onChange={(e) => handleAssign(e.target.value)}
-                  fullWidth
-                >
-                  <MenuItem value="">
-                    <em>ללא שיוך</em>
-                  </MenuItem>
-                  {activeUsers.map((u) => (
-                    <MenuItem key={u.id} value={u.id}>
-                      {u.full_name}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              ) : ticket.assignee_name ? (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Avatar sx={{ width: 28, height: 28, fontSize: '0.7rem', bgcolor: '#0073ea' }}>
-                    {getInitials(ticket.assignee_name)}
-                  </Avatar>
-                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                    {ticket.assignee_name}
-                  </Typography>
-                </Box>
-              ) : (
-                <Typography variant="body2" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
-                  לא שויך
+            {showAssignee && (
+              <Box>
+                <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mb: 0.5 }}>
+                  משויך
                 </Typography>
-              )}
-            </Box>
+                {isAdmin ? (
+                  <TextField
+                    select
+                    size="small"
+                    value={ticket.assignee_id || ''}
+                    onChange={(e) => handleAssign(e.target.value)}
+                    fullWidth
+                  >
+                    <MenuItem value="">
+                      <em>ללא שיוך</em>
+                    </MenuItem>
+                    {activeUsers.map((u) => (
+                      <MenuItem key={u.id} value={u.id}>
+                        {u.full_name}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                ) : ticket.assignee_name ? (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Avatar sx={{ width: 28, height: 28, fontSize: '0.7rem', bgcolor: '#0073ea' }}>
+                      {getInitials(ticket.assignee_name)}
+                    </Avatar>
+                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                      {ticket.assignee_name}
+                    </Typography>
+                  </Box>
+                ) : (
+                  <Typography variant="body2" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
+                    לא שויך
+                  </Typography>
+                )}
+              </Box>
+            )}
 
             <Box>
               <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mb: 0.5 }}>

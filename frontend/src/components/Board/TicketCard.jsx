@@ -1,11 +1,18 @@
 import { Card, CardContent, Typography, Box, Avatar, Tooltip } from '@mui/material';
-import { getPriorityInfo, getInitials, timeAgo, getTicketAge, getAgeEmoji, getAgeLabel } from '../../utils/helpers';
+import { getPriorityInfo, getInitials, getTicketAge, getAgeLabel } from '../../utils/helpers';
+
+function getAgeColor(days) {
+  if (days < 5) return 'text.secondary';
+  if (days < 10) return '#e67e00';
+  return '#d32f2f';
+}
 
 export default function TicketCard({ ticket, onClick }) {
   const priority = getPriorityInfo(ticket.priority);
   const days = getTicketAge(ticket.created_at);
-  const ageEmoji = getAgeEmoji(days);
   const ageLabel = getAgeLabel(days);
+  const ageColor = getAgeColor(days);
+  const showAssignee = ticket.status !== 'open';
 
   return (
     <Card
@@ -60,7 +67,7 @@ export default function TicketCard({ ticket, onClick }) {
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-            {ticket.assignee_name ? (
+            {showAssignee && ticket.assignee_name ? (
               <Tooltip title={ticket.assignee_name} placement="top">
                 <Avatar
                   sx={{
@@ -73,21 +80,22 @@ export default function TicketCard({ ticket, onClick }) {
                   {getInitials(ticket.assignee_name)}
                 </Avatar>
               </Tooltip>
-            ) : (
+            ) : showAssignee ? (
               <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: '0.7rem' }}>
                 לא שויך
               </Typography>
-            )}
+            ) : null}
           </Box>
 
-          <Tooltip title={`פתוח ${ageLabel}`} placement="top">
-            <Typography variant="caption" sx={{ fontSize: '0.95rem', cursor: 'default', lineHeight: 1 }}>
-              {ageEmoji}
-            </Typography>
-          </Tooltip>
-
-          <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.7rem' }}>
-            {timeAgo(ticket.created_at)}
+          <Typography
+            variant="caption"
+            sx={{
+              color: ageColor,
+              fontSize: '0.75rem',
+              fontWeight: days >= 5 ? 600 : 400,
+            }}
+          >
+            {ageLabel}
           </Typography>
         </Box>
       </CardContent>

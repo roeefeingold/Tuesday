@@ -1,10 +1,22 @@
-import { AppBar, Toolbar, Typography, Box, Avatar, IconButton, Tooltip } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { AppBar, Toolbar, Typography, Box, Avatar, IconButton, Tooltip, Chip } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useAuth } from '../../context/AuthContext';
 import { getInitials } from '../../utils/helpers';
+import { get } from '../../api/client';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  const [solvedCount, setSolvedCount] = useState(0);
+
+  useEffect(() => {
+    if (user) {
+      get('/tickets/stats')
+        .then((res) => setSolvedCount(res.data?.by_status?.solved || 0))
+        .catch(() => {});
+    }
+  }, [user]);
 
   return (
     <AppBar
@@ -17,9 +29,27 @@ export default function Navbar() {
       }}
     >
       <Toolbar sx={{ justifyContent: 'space-between' }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, color: '#0073ea' }}>
-          Tuesday
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Typography variant="h5" sx={{ fontWeight: 700, color: '#0073ea' }}>
+            Tuesday
+          </Typography>
+          {user && (
+            <Tooltip title="תקלות שנסגרו">
+              <Chip
+                icon={<CheckCircleIcon sx={{ fontSize: 18 }} />}
+                label={`${solvedCount} נסגרו`}
+                size="small"
+                sx={{
+                  backgroundColor: '#e8f5e9',
+                  color: '#2e7d32',
+                  fontWeight: 600,
+                  fontSize: '0.8rem',
+                  '& .MuiChip-icon': { color: '#2e7d32' },
+                }}
+              />
+            </Tooltip>
+          )}
+        </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>

@@ -37,13 +37,6 @@ export function getTicketAge(createdAt) {
   return Math.floor((now - date) / (1000 * 60 * 60 * 24));
 }
 
-export function getAgeEmoji(days) {
-  if (days <= 2) return '😊';
-  if (days <= 5) return '😐';
-  if (days <= 9) return '😟';
-  return '😠';
-}
-
 export function getAgeLabel(days) {
   if (days === 0) return 'היום';
   if (days === 1) return 'יום 1';
