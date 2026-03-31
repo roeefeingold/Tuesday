@@ -44,12 +44,20 @@ services:
     environment:
       - VITE_API_URL=http://localhost:80/api
     command: npm run dev -- --host 0.0.0.0 --port 3000
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:3000 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
 
   nginx:
     build: ./nginx
     depends_on:
-      - backend
-      - frontend
+      backend:
+        condition: service_started
+      frontend:
+        condition: service_healthy
     ports:
       - "80:80"
 
