@@ -25,6 +25,8 @@ def _config_to_out(config: EmailConfig) -> EmailConfigOut:
         smtp_user=config.smtp_user,
         smtp_password_masked=masked,
         sender_email=config.sender_email,
+        use_tls=config.use_tls,
+        use_ssl=config.use_ssl,
         is_enabled=config.is_enabled,
         created_at=config.created_at,
         updated_at=config.updated_at,
@@ -58,6 +60,8 @@ async def create_or_update_email_config(
         config.smtp_user = config_in.smtp_user
         config.smtp_password = config_in.smtp_password
         config.sender_email = config_in.sender_email
+        config.use_tls = config_in.use_tls
+        config.use_ssl = config_in.use_ssl
         config.is_enabled = config_in.is_enabled
     else:
         config = EmailConfig(
@@ -66,6 +70,8 @@ async def create_or_update_email_config(
             smtp_user=config_in.smtp_user,
             smtp_password=config_in.smtp_password,
             sender_email=config_in.sender_email,
+            use_tls=config_in.use_tls,
+            use_ssl=config_in.use_ssl,
             is_enabled=config_in.is_enabled,
         )
         db.add(config)

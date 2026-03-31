@@ -46,6 +46,8 @@ export default function AdminPage() {
     smtp_user: '',
     smtp_password: '',
     sender_email: '',
+    use_tls: true,
+    use_ssl: false,
     is_enabled: false,
   });
   const [emailLoading, setEmailLoading] = useState(false);
@@ -81,6 +83,8 @@ export default function AdminPage() {
           smtp_user: res.data.smtp_user || '',
           smtp_password: '',
           sender_email: res.data.sender_email || '',
+          use_tls: res.data.use_tls !== undefined ? res.data.use_tls : true,
+          use_ssl: res.data.use_ssl !== undefined ? res.data.use_ssl : false,
           is_enabled: res.data.is_enabled || false,
         });
       }
@@ -403,14 +407,30 @@ export default function AdminPage() {
                 fullWidth
               />
 
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Switch
-                  checked={emailConfig.is_enabled}
-                  onChange={(e) => setEmailConfig({ ...emailConfig, is_enabled: e.target.checked })}
-                />
-                <Typography variant="body2">
-                  {emailConfig.is_enabled ? 'מופעל' : 'מושבת'}
-                </Typography>
+              <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <Switch
+                    checked={emailConfig.use_tls}
+                    onChange={(e) => setEmailConfig({ ...emailConfig, use_tls: e.target.checked, use_ssl: false })}
+                  />
+                  <Typography variant="body2">STARTTLS (port 587)</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <Switch
+                    checked={emailConfig.use_ssl}
+                    onChange={(e) => setEmailConfig({ ...emailConfig, use_ssl: e.target.checked, use_tls: false })}
+                  />
+                  <Typography variant="body2">SSL (port 465)</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <Switch
+                    checked={emailConfig.is_enabled}
+                    onChange={(e) => setEmailConfig({ ...emailConfig, is_enabled: e.target.checked })}
+                  />
+                  <Typography variant="body2">
+                    {emailConfig.is_enabled ? 'מופעל' : 'מושבת'}
+                  </Typography>
+                </Box>
               </Box>
 
               <Divider />

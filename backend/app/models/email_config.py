@@ -13,6 +13,8 @@ class EmailConfig(Base):
     smtp_user = Column(String(255), nullable=False)
     smtp_password = Column(String(255), nullable=False)
     sender_email = Column(String(255), nullable=False)
+    use_tls = Column(Boolean, default=True)
+    use_ssl = Column(Boolean, default=False)
     is_enabled = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
