@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   AppBar, Toolbar, Typography, Box, Avatar, Chip,
   Menu, MenuItem, ListItemIcon, ListItemText, Divider,
@@ -14,16 +14,22 @@ import { get } from '../../api/client';
 export default function Navbar() {
   const { user, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
-  const [solvedCount, setSolvedCount] = useState(0);
+  const location = useLocation();
+  const [closedCount, setClosedCount] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
 
-  useEffect(() => {
+  const fetchStats = useCallback(() => {
     if (user) {
       get('/tickets/stats')
-        .then((res) => setSolvedCount(res.data?.by_status?.closed || 0))
+        .then((res) => setClosedCount(res.data?.by_status?.closed || 0))
         .catch(() => {});
     }
   }, [user]);
+
+  // Refetch on every page navigation
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats, location.pathname]);
 
   const handleMenuOpen = (e) => setAnchorEl(e.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
@@ -65,7 +71,7 @@ export default function Navbar() {
           {user && (
             <Chip
               icon={<CheckCircleIcon sx={{ fontSize: 18 }} />}
-              label={`${solvedCount} נסגרו`}
+              label={`${closedCount} נסגרו`}
               size="small"
               onClick={handleClosedClick}
               sx={{

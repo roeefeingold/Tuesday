@@ -96,7 +96,15 @@ async def list_tickets(
     if search:
         query = query.where(Ticket.title.ilike(f"%{search}%"))
 
-    query = query.order_by(Ticket.created_at.desc())
+    # Order by priority (critical first), then by creation date (oldest first)
+    priority_order = func.case(
+        (Ticket.priority == "critical", 1),
+        (Ticket.priority == "high", 2),
+        (Ticket.priority == "medium", 3),
+        (Ticket.priority == "low", 4),
+        else_=5,
+    )
+    query = query.order_by(priority_order, Ticket.created_at.asc())
     result = await db.execute(query)
     tickets = result.scalars().all()
 
